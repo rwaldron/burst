@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=UTF-8">  
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="F1LT3R at Hyper-Metrix.com">
+  <meta name="description" content="Burst Engine Demo">
+  <meta name="keywords" content="Burst animation engine JavaScript Canvas">
+  <title>Burst Engine</title>
+  <link rel="stylesheet" media="screen" type ="text/css" href="../../css/screen.css" />  
+  <script type="text/javascript" src="../../../js/jquery-1.3.1.min.js"></script>          
+  <script type="text/javascript" src="../../js/jquery.site.js"></script>
+  <script type="text/javascript" src="../../../js/init.processing.js"></script>
+  <script type="text/javascript" src="../../../js/processing.js"></script>  
+  
+</head>
+<body>
+
+<div id="wrap">
+    <div id="heading">
+    <canvas id="burst" width="320px" height="180px" style="border:1px solid black"></canvas>
+    </div>
+    <div id="main">    
+    
+    <form id="demoScript">
+    <div class="toolbar">        
+        <input name="run" class="run" type="submit" value="RUN">
+        <input name="info" class="info" type="submit" value="info">
+        <div id="info">
+            <div id="verspec"><ul>
+              <li><b>Version:</b> <span class="version">???</span></li>
+              <li><b>Homepage:</b> <a href="http://hyper-metrix.com/#burst">http://hyper-metrix.com/#burst</a></li>
+              <li><b>Repo:</b> <a href="http://github.com/F1LT3R/burst/tree/master">GitHub Repo</a></li>
+              <li><b>License:</b> <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a></li>
+              <li><b>Copyright:</b> Copyright (c) 2009 Alistair MacDonald</li>
+            </ul></div>
+            <h1>Command Chaining</h1>          
+            <p><b>Command chaining is the ability to chain commands together into one long line.</b> This is the same technique jQuery uses so well to traverse the DOM. Similar to jQuery, Burst assumes the last node as being 'current' when creating a chain. For example: the current node is the property track named "fill" in this example:</p>
+<pre>Burst.timeline("myTimeline").shape("myShape").track("fill")</pre>
+<p>Burst, timeline, shape and track are all 'Objects'. When you call an object, it returns it's self. So <i>Burst.timeline("myTimeline").left = 100;</i> will change myTimeline's left property. But if you wanted to change properties of multiple objects you would do this:</p>
+<pre>
+Burst.timeline("myTimeline").track("left").key(0, 100)
+  .shape("myShape").track("left").key(0, 100)
+  .shape("myOtherShape").track("left").key(0, 100);
+</pre>
+<h2>Quick Node Traversal</h2>
+<p>Different to jQuery, back-tracking up the chain is possible with out referencing having to use <i>.parent()</i>. When you want to access a parent node, simple call it's name again like so:</p>
+<pre>
+01 Burst.timeline("myTimeline")
+02  .shape("SHAPE1")
+03    .track("left").key(0, 100)
+04  .shape("SHAPE2")
+05    .track("left").key(0, 200)
+06  .shape("SHAPE1")
+07    .track("left").key(0, 100);    
+</pre>            
+<p>As you can see on <b>line 6</b>, "shape1" is being re-accessed without any reference to it's location in the object model. This task is performed by an internal lookup that references the original object if it already exists. If it does not exist, a new object is created with this name and returned as the current node.</p>
+<p><b>NOTE:</b> It impossible to create 2 objects of the same class with the same name. If you try, the original object with the same name will be returned as the current object.</p>            
+                                
+        </div>
+        <span><b>Burst PJS Introduction:</b> Using version: <span class="version">???</span></span>
+    </div>
+<textarea id="myBurstScript">//burstEngine
+Burst.timeline("myTimeline", 0, 500, 1, false)
+    .shape("gear", "../../../shapes/off/gear.off", "edge", 160, 90, 50, 0, 3, "aaff00ff", "88aa00ff", 1)
+      .track("rot")
+          .key(1, 0)
+          .key(500, 360)
+      .track("left")
+          .key(1, 160)
+          .key(100, 320)
+          .key(300, 0)
+          .key(400, 160);      
+
+Burst.chain("myTimeline");
+
+void draw(){
+  background(0,0,0,0);  
+  Burst.play();
+}
+
+</textarea>
+</form>
+<div class="foot">
+  <a href="http://hyper-metrix.com/">hyper-metrix.com</a>|
+  <a href="http://github.com/F1LT3R/burst/tree/master">GitHub Master</a>
+</div>
+</div><!-- main -->  
+</div>      
+</body>
+</html>

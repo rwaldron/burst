@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=UTF-8">  
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="F1LT3R at Hyper-Metrix.com">
+  <meta name="description" content="Burst Engine Demo">
+  <meta name="keywords" content="Burst animation engine JavaScript Canvas">
+  <title>Burst Engine</title>
+  <link rel="stylesheet" media="screen" type ="text/css" href="../../css/screen.css" />  
+  <script type="text/javascript" src="../../../js/jquery-1.3.1.min.js"></script>          
+  <script type="text/javascript" src="../../js/jquery.site.js"></script>
+  <script type="text/javascript" src="../../../js/init.processing.js"></script>
+  <script type="text/javascript" src="../../../js/processing.js"></script>  
+  
+</head>
+<body>
+
+<div id="wrap">
+    <div id="heading">
+    <canvas id="burst" width="320px" height="180px" style="border:1px solid black"></canvas>
+    </div>
+    <div id="main">    
+    
+    <form id="demoScript">
+    <div class="toolbar">        
+        <input name="run" class="run" type="submit" value="RUN">
+        <input name="info" class="info" type="submit" value="info">
+        <div id="info">
+            <div id="verspec"><ul>
+              <li><b>Version:</b> <span class="version">???</span></li>
+              <li><b>Homepage:</b> <a href="http://hyper-metrix.com/#burst">http://hyper-metrix.com/#burst</a></li>
+              <li><b>Repo:</b> <a href="http://github.com/F1LT3R/burst/tree/master">GitHub Repo</a></li>
+              <li><b>License:</b> <a href="http://en.wikipedia.org/wiki/MIT_License">MIT License</a></li>
+              <li><b>Copyright:</b> Copyright (c) 2009 Alistair MacDonald</li>
+            </ul></div>
+            <h1>Burst PJS Introduction</h1>          
+            <p><b>Welcome to the general introduction for Burst.PJS.</b> Burst PJS is a version of Burst that runs along-side Processing.js. This means you can create Flash-like animations with timelines, and combine them with all the crazy Processing.js goodness you are used to.</p>
+            <h2>Things you should know about Burst for PJS</h2>
+            <ol>
+              <li><b>Burst has 3 main development trunks:</b>
+                  <ol>
+                    <li>PJS, the Processing.js version of Burst (you are here)</li>
+                    <li>PDE, the native Processing versionof Burst</li>
+                    <li>JS, the bare JavaScript version of Burst</li>
+                  </ol>
+                  <p>The idea is that all versions of Burst act the same way, have the same commands and share the same features. As of version 0.3.xx this is true of Burst PJS and Burst JS. The PDE and the PJS should <i>always</i> run from the same peice of code. If this means updating Processing.js, so be it. As you can see, even though we are in the PJS documentation, we are loading the burst.x.x.x.pde file. I am hoping this means we can Burst in Applet form to add IE6 aupport where absolutely necessary.</p>
+              </li>
+              <li><p><b>ICE: Integrated Coding Environment</b> is this little web-app-ish page I have built for the documentation. ICE allows you to play with the code in the example which should be handy for testing out new features etc. You will have to click <b>[RUN]</b> to start the Burst script. The 'Version' attribute will not appear in the document until a script is run because... well the script is telling the document which version it's running and updates using jQuery.</p>
+                <p><b>There will be more features coming to ICE in time, such as:</b>
+                <ol>
+                  <li>a shape object browser</li>
+                  <li>a command builder/reference list</li>
+                  <li>an IRC window to chat with other developers on the fly</li>
+                 </ol>
+                 </p>
+              </li>
+              <li><p><b>Burst include:</b> currently Burst is included in a Processing.js script by adding <b>//burstEngine</b> to very start. Processing.js then parses it along side the rest of the script. Frankly this was a real cheap-shot and needs to be fixed for several reasons. For example: you shouldn't have to update your Processing.js, just because you move your Burst.PDE file.</p>
+              <li><p><b>Latest version:</b> The latest version of Burst will always be running in these docs, which I hope will help crate a few benchmarks.</p></li> 
+              </li>
+            </ol>
+            <h2>Get creative</h2>
+            <p>Now you've read the boring bit, dive in to the code, change some stuff and hit <b>[RUN]</b>. Remember... this is a Processing.js script you are editing. jQuery, Processing and Burst are running, so you can make use of all of these in your script if you need to.</p>                    
+        </div>
+        <span><b>Burst PJS Introduction:</b> Using version: <span class="version">???</span></span>
+    </div>
+<textarea id="myBurstScript">//burstEngine
+Burst.timeline("gear", 0, 250, 1, false)
+    .shape("gear", "../../../shapes/off/gear.off", "edge", 0, 0, 80, 0, 3, "aaff00ff", "88aa00ff", 1)
+      .track("rot").key(1, 0, 'easeOutBounce').key(200, 360)
+      .track("left").key(1, -100,'easeOutBounce').key(200, 240);
+
+Burst.timeline("expand", 0, 100, 1, false)
+  .shape("hyperL", "../../../shapes/off/hyperL.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("left").key(1, 160).key(100, 35)
+  .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("left").key(1, 160).key(100, 285)
+  .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("opac").key(1, 1).key(100, 0)
+    .track("scl").key(1, 5.5).key(100, 50)
+    .track("top").key(1, 90).key(100, 240);
+
+Burst.timeline("shrink", 0, 100, 1, false)
+  .shape("hyperL", "../../../shapes/off/hyperL.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("left").key(100, 160).key(1, 35)
+  .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("left").key(100, 160).key(1, 285)
+  .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("opac").key(100, 1).key(1, 0)
+    .track("scl").key(100, 5.5).key(1, 50)
+    .track("top").key(100, 90).key(1, 240);
+
+Burst.timeline("spin", 0, 100, 1, false)
+  .shape("hyperL", "../../../shapes/off/hyperL.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("rot").key(1, 0, "easeOutBounce").key(50, 100, "easeOutBounce").key(100, 360)
+  .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("rot").key(1, 0, "easeOutCubic").key(50, 260, "easeOutCubic").key(100, 360)
+  .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+    .track("rot").key(1, 0).key(50, 200).key(100, 360);
+
+Burst.timeline("colors", 0, 100, 1, false)
+    .shape("hyperL", "../../../shapes/off/hyperL.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+      .track("fill").key(1,  "000000ff", "linear").key(50, "0000ffff", "linear").key(100,"ff0000ff")
+    .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+      .track("fill").key(1,  "000000ff", "linear").key(50, "00ff00ff", "linear").key(100,"0000ffff")
+    .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "000000ff", 1)
+      .track("fill").key(1,  "000000ff", "linear").key(50, "ff0000ff", "linear").key(100,"00ff00ff");
+
+/*
+You can change the fill and stroke opacity hexes independantly of the shape's
+total opacity. This is useful if you want to do something like change the 
+opacity of the stroke to 0.5 and then use the object's global opacity to control
+both opacity's together. So setting strokeColor to "00000088" and object.opac 
+to "0.5" your actual strokeColor will be "00000044". 
+*/
+
+Burst.timeline("transparency", 0, 200, 1, false)
+  .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "0000ffff", 1)
+  .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "00ff00ff", 1)
+  .shape("hyperL", "../../../shapes/off/hyperL.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "ff0000ff", 1)
+    .track("opac").key(1, 1, "linear").key(200, .5)
+    .track("scl").key(1, 5.5).key(200, 10)
+    .track("left").key(1, 160).key(200,180)
+    .track("rot").key(1, 0, "linear").key(100,-90);
+
+Burst.timeline("strokes", 0, 200, 1, false)
+  .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "0000ffff", 1)
+  .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "00ff00ff", 1)
+  .shape("hyperL", "../../../shapes/off/hyperL.off", "edge", 180, 90, 10, -90, 0, "ffaa00ff", "ff0000aa", 1)
+    .track("strokeWidth").key(1,  0, "easeOutBounce").key(100, 15);
+
+//FX module is currently VERY basic and just used to outline what an "effect" is.
+Burst.timeline("fxs", 0, 200, 1, false)
+    .shape("hyperR", "../../../shapes/off/hyperR.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "0000ffff", 1)
+    .shape("hyperM", "../../../shapes/off/hyperM.off", "edge", 160, 90, 5.5, 0, 0, "000000ff", "00ff00ff", 1)
+    .shape("hyperL", "../../../shapes/off/hyperL.off", "curve", 180, 90, 10, -90, 15, "ffaa00ff", "ff0000aa", 1)
+    .effects[0]="wave";
+
+
+void setup(){
+  frameRate(60);
+}
+
+Burst.chain("gear;expand;shrink;spin;colors;transparency;strokes;fxs", function(){ alert("Demo finished. This was a callback."); } );
+
+void draw(){
+  background(0,0,0,0);  
+  Burst.play();
+}
+</textarea>
+</form>
+<div class="foot">
+  <a href="http://hyper-metrix.com/">hyper-metrix.com</a>|
+  <a href="http://github.com/F1LT3R/burst/tree/master">GitHub Master</a>
+</div>
+</div><!-- main -->  
+</div>      
+</body>
+</html>

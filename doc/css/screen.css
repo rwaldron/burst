@@ -1,0 +1,73 @@
+/* RESET */ 
+html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, font, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td {margin: 0;padding: 0;border: 0;outline: 0;font-size: 100%;vertical-align: baseline;background: transparent;} body {line-height: 1;} ol, ul {list-style: none;} blockquote, q {quotes: none;} blockquote:before, blockquote:after, q:before, q:after {content: '';content: none;} :focus {outline: 0;} ins {text-decoration: none;} del {text-decoration: line-through;} table {border-collapse: collapse;border-spacing: 0;}
+
+.clear{clear:both;}
+body{background:url(../gfx/checkback.gif);font-family:arial;font-size:80%;padding-top:20px;color:#fff;}
+#wrap{width:960px; margin:0 auto;margin-bottom:100px;}
+#heading{background:url(../gfx/gear.png) no-repeat;width:1000px;height:450px;position:relative;margin:-30px 0 0 -50px;z-index:0;text-align:right;}
+#main{position:absolute;z-index:3;top:320px;padding-bottom:100px;}
+canvas{margin:0px 10px 10px 0;position:relative;z-index:3;margin-top:130px;}
+
+#info{float:right;width:850px;padding:20px;color:#fff;display:none;background:#0af;position:absolute;z-index:5;border:10px solid #fff;font-size:10pt;font-family:verdana;}
+#verspec{width:350px;float:right;background:#76d0fd;padding:10px;color:#000;margin-left:15px;font-size:8pt!important;}
+h1{font-size:18pt;}
+h2{font-size:12pt;margin-top:20px;}
+3{font-size:12pt;margin-top:20px;}
+
+#info pre{margin-top:10px;color:#fff;}
+#info i{color:#fff;}
+
+p{margin-top:10px;color:#000;}
+ul{margin-top:10px;}
+ul li{margin-bottom:3px;}
+ul li b{display:block;width:100px;float:left;padding-right:5px;font-weight:bold;color:#000}
+a{text-decoration:none;}
+
+ol{color:#000;}
+ol li{list-style-type:decimal;margin-left:20px;margin-top:10px;}
+ol li ol li{margin-top:0px!important;}
+
+a:hover, a:focus{text-decoration:underline!important;}
+
+div.toolbar{display:block;position:absolute;z-index:4;margin:22px 0 0 25px;}
+
+form#demoScript textarea{width:945px;display:block;height:510px;overflow:scroll;font-size:14px;font-family:courier;background:url(../gfx/textareaback.png) no-repeat;color:#fff;border:none;padding:58px 15px 10px 20px;line-height:1em;overflow:hidden;}
+
+div.pagetop{width:930px;background:url(../gfx/pagetop.png) no-repeat;height:36px;margin:0;padding:20px 30px 0 0px;}
+div.pagetop h1{text-align:right;}
+div.pageloop{width:900px;background:url(../gfx/pageloop.png) repeat-y;margin:0;padding:0 40px 0 30px;font-size:10pt;padding-top:20px;}
+div.pageloop h2{margin:0;padding:0 0 10px 0;font-size:12pt}
+div.pageloop ol li{margin-top:0;color:#def;}
+div.pageloop ol li b.neat{display:block;float:left;width:50px;}
+div.pageloop ol{padding-bottom:20px;}
+div.pageloop ul{padding-bottom:20px;}
+div.pageloop p{padding-bottom:10px;color:#def;}
+div.pageloop h2{}
+div.pageloop h3{font-size:12pt;margin-top:20px;background:#fff;padding:5px 7px;}
+div.pageloop h3 a{color:#000!important}
+div.pageend {width:960px;background:url(../gfx/pageend.png) no-repeat;height:154px;margin-bottom:20px;}
+div.subject{padding-bottom:30px;}
+div.pageloop ol li{color:#000!important}
+div.pageloop h4{color:#048;margin-left:18px;}
+th{text-align:left;background:#000;color:#fff;padding:5px 7px;}
+td{padding:5px 7px;}
+td.name{font-weight:bold;text-transform:uppercase;}
+td.pre{width:350px;}
+div.subject pre{margin:0;white-space: pre-wrap;white-space: -moz-pre-wrapwhite-space: -pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;}
+table pre{font-size:8pt;}
+pre{color:#000;}
+
+
+.pageloop a{color:#ac0;}
+.pageloop a:hover{color:#af0;}
+.pageloop a:focus{background:#af0;color:#000;}
+.pageloop a:active{background:#fff;color:#0af;}
+
+
+.foot{width:900px;margin:0 auto 20px auto;}
+.foot a{color:#ddd;font-family:arial;font-size:10pt;margin-right:5px;}
+.foot a:hover, #foota:focus{color:#fff;}
+
+
+
+h2 a, h2 a:hover, h2 a:active, h2 a:focus{text-decoration:none!important;color:#fff!important;background:none!important;}

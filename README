@@ -1,0 +1,16 @@
+########  ##     ## ########   ######  ######## 
+##     ## ##     ## ##     ## ##    ##    ##    
+##     ## ##     ## ##     ## ##          ##    
+########  ##     ## ########   ######     ##    
+##     ## ##     ## ##   ##         ##    ##    
+##     ## ##     ## ##    ##  ##    ##    ##    
+########   #######  ##     ##  ######     ##    
+
+ABOUT BURST ENGINE
+-------------------------------------------------------------------------------
+The Burst Engine is an OpenSource vector animation engine for the HTML5 Canvas 
+element. Burst provides similar web functionality to Flash and contains a layer
+based animation system like After Effects. Burst uses a very light-weight 
+JavaScript frame, meaning your animations will download unnoticably quick and 
+can be controlled using very simple JavaScript commands, allowing for chaining
+and callbacks.

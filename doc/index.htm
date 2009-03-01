@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=UTF-8">  
+  <meta http-equiv="content-type" content="text/html; charset=windows-1250">
+  <meta name="generator" content="F1LT3R at Hyper-Metrix.com">
+  <meta name="description" content="Burst Engine Demo">
+  <meta name="keywords" content="Burst animation engine JavaScript Canvas">
+  <title>Burst Engine</title>
+  <link rel="stylesheet" media="screen" type ="text/css" href="css/screen.css" />  
+</head>
+<body>
+
+<div id="wrap">
+<div id="heading"></div>
+<div id="main">  
+
+<div class="pagetop"><h1>Documentation index</h1></div><div class="pageloop">
+  <h2>About The Burst Engine</h2>
+  <ol>
+    <li><a href="#whyburst">Why Burst?</a></li>
+    <li><a href="#goals">Goals</a></li>
+    <li><a href="#pjspdejs">PJS, PDE & JS</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#featuresdev">Features in Development</a></li>
+    <li><a href="#links">Useful Links</a></li>        
+  </ol>
+  
+  <h2>Burst.pjs Demonstrations</h2>
+  <ol>
+    <li><a href="demos/pjs/introduction.htm">Introduction</a></li>
+    <li><a href="demos/pjs/commandchaining.htm">Command Chaining</a></li>    
+  </ol>
+  
+  <h2>Reference</h2>      
+  <h4>Commands</h4>
+  <ol>
+    <li><a href="#ref-timeline">timeline()</a></li>
+    <li><a href="#ref-shape">shape()</a></li>
+    <li><a href="#ref-track">track()</a></li>
+    <li><a href="#ref-key">key()</a></li>
+    <li><a href="#ref-chain">chain()</a></li>
+    <li><a href="#ref-play">play()</a></li>
+    <li><a href="#ref-pause">pause()</a></li>
+  </ol>        
+  <h4>Usage</h4>
+  <ol>
+    <li><a href="#ref-commandchaining">Command Chaning</a></li>
+  </ol>  
+</div><div class="pageend"></div>    
+  
+
+<div class="pagetop"><h1>About the Burst Engine</h1></div><div class="pageloop">
+<div class="subject">
+<h3><a name="whyburst">Why Burst?</a></h3>
+<p>I created Burst because I wanted a quicker, easier way of building complex animations on the HTML Canvas for both UI elements and JavaScript games. I had been <a href="http://hyper-metrix.com/#Processing">experimenting</a> with <a href="http://ejohn.org/blog/processingjs/">Processing.js</a> ever since it's timely release in summer 2008. While I began  creating my own UI elements in <a href="http://hyper-metrix.com/#Processing">PJS</a>, I found the process to be tedious and began combining my methods into a script I could include when PJS loaded.</p>
+
+<p>Having been a freelance web designer/developer for some years, I had crossed paths with Flash many times. Personally... I never liked Flash. <b>A)</b> It was a closed system in a world built explicitly on open systems. <b>B)</b> I found it's workflow unessesarily complicated. <b>C)</b> People started making whole web-sites with it, which I would have to download on a 28k modem. <i>( No offense to Flash developers, as some of you guys clearly do some awesome things with Flash but it was just never an HTML kid's cup of tea. )</i></p>
+ 
+<p>So in winter 2008 I set about building Burst to combine the vector functions of <a href="http://get.adobe.com/flashplayer/">Flash</a> with the timeline flow of <a href="http://www.adobe.com/products/aftereffects/">AfterEffects</a> and the codability of <a href="http://jquery.com/">jQuery</a>. The Burst Engine is about simplicity, speed &amp; flexibility.</p>
+
+<p>For a guy with little knowledge of OO, and advanced JavaScript animation techniques it has been a steeply curved journey; but as time moves forward I continue to find The Burst Engine to be extremely useful when creating flashy JS applications for the web. And so: at the point where I have Burst running with Processing.js, native Processing and bare-bones JavaScript, I have decided to switch my main focus to furthering Burst's development and promoting it as a userful tool for the web.</p> 
+</div>
+
+
+<div class="subject">
+<h3><a name="goals">Goals</a></h3>
+<p>Burst has been created with specific goals in mind. These are:
+<ol>
+  <li><b class="neat">Flash</b> A JavaScript alternative to Flash</li>
+  <li><b class="neat">Games</b> An animation engine to assist JavaScript game development</li>
+  <li><b class="neat">VJing</b> A frame-workto drive a Comet based VJing application for clubs.</li>
+</ol>
+</p>
+</div>
+
+
+
+<div class="subject">
+<h3><a name="pjspdejs">PJS, PDE &amp; JS</a></h3>
+<p>Burst comes in three delicious flavours:</p>
+<ol><li><b class="neat">PJS:</b> A Processing.js version for users that want to use Burst commands in their Processing.js script.</li>
+<li><b class="neat">PDE:</b> A Native Processing version for people who want to create desk-top applications or Java web-applets that use the Burst engine.</li>
+<li><b class="neat">JS:</b> A light weight JavaScript version of Burst. Burst.js is my primary focus.</li>
+</ol>
+</div>
+
+<div class="subject">
+<h3><a name="features">Features</a></h3>
+<table>
+<tr><th>Name:</th><th>Description:</th><th>Code:</th><th>Demo:</th><th>Reference:</th></tr>
+<tr><td class="name">Command chaining</td><td>Command chaning allows sripters to access Burst objects and commands using in an easy-to-read format.</td><td class="pre"><pre>
+Burst.timeline("party", 0, 25, .5, false)
+  .shape("balloon", "balloon.svg", "outline")
+    .track("top")
+      .key(1, 100)
+      .key(25, -20);</pre>
+</td><td><a href="demos/pjs/commandchaining.htm">Command Chaining</a></td><td><a href="#ref-commandchaining">Details</a></td></tr>
+<tr><td class="name">Callbacks</td>
+<td>A callback is a peice of code, or function that excecutes when another command has completed.</td>
+<td><pre>
+Burst.play("myTimeline", function(){ alert("finished");} );
+</pre>
+</td><td></td><td></td></tr>
+<tr><td class="name">SVG Import</td><td>Burst can import SVG files to the Canvas.</td><td></td><td></td><td></td></tr>
+<tr><td class="name">HEX Alpha</td><td>Burst uses HEX Alpha to parse colors.</td><td><pre>shape("myShape").fill = "ff0000ff";</pre></td><td></td><td></td></tr>
+<tr><td class="name">.OFF Shapes</td><td>Burst can read .OFF objects exported from Blender 3D. These shapes are interpreted as 2D outlines, so you will need to order the vertexes as such when creating your objects.</pre></td><td></td><td></td></tr>
+<tr><td class="name">.OBJ Shapes</td><td>Burst can also read .OBJ objects exported from Blender 3D. These shapes are interpreted as Quad and Triangle vertexes making filled faces or wireframe outlines. These vertices do not need to be ordered in any way.</pre></td><td></td><td></td></tr>
+</table>
+</div>
+
+
+<div class="subject">
+<h3><a name="featuresdev">Features in Development</a></h3>
+<table><tr><th>Name:</th><th>Description:</th></tr>
+<tr><td class="name">Recursive object cloning</td><td>Allowing the scripter to clone a timeline and all it's objects with new names.</td></tr>
+<tr><td class="name">keyframe overwites</td><td>At the moment keyframes do not have unique IDs so creating two property keys in the same frame will cause the second key to be the real value. They correct behaviour would be for the previous key to be overw-written.</td></tr>
+<tr><td class="name">Z-Indexing</td><td>Z-Indexing has not yet been implamented. This will apply to timelines and shapes.</td></tr>
+<tr><td class="name">Effect Modules</td><td>Effect modules will transform the shape data of an object by given paramters. This could be used to create animat-able drop-shadows, glows, wraps/distortions or anything else that can be envisioned.</td></tr>
+<tr><td class="name">Shape tweening</td><td>Similar tweening functions to Flash. This will allow the morphing of shape objects or the keying of shape animations. EG: you could create 3 SVG shapes of a dove flying and then tween between (smooth or step interpolation), to create an animated shape. Should be great for similfying game creation.</td></tr>
+<tr><td class="name">Transitions</td><td>Allows for transitioning between timelines. IE: cross-fade, circular-wipe etc.</td></tr>
+<tr><td class="name">Burst IDE</td><td>Burst will have an AJAX based IDE to assist in the animation process. The IDE will also allow the editing of shapes and should be intuitive enough for children to use. The IDE will also allow the exporting of a script to an HTML document and will support live-scripting in a similar manor to ActionScript.</td></tr>
+<tr><td class="name">Physics engine</td><td>Burst will have a basic 2D Newtonian-based physics engine supporting rigid masses and support object collision of convex &amp; concave shapes.</td></tr>
+<tr><td class="name">Particle engine</td><td>Burst will also have a particle engine fo creating smoke, sparks, bubbles etc.</td></tr>
+<tr><td class="name">Ray-casting</td><td>Burst will support convex &amp; concave ray-casting, allowing for the interaction and collision between shapes and UID's such as a mouse, adding events to shapes such as: onClick and drag.</td></tr>
+<tr><td class="name">True-type Fonts</td><td>Burst will support true-type font rendering. Strings will be parsed to SVG shapes until such point as TTFs can be supported natively by the Canvas.</td></tr>
+<tr><td class="name">3D Rendering</td><td>Basic 3D may be supported in future versions of Burst. Complexity being added as Browsers begin support OpenGL hardware in actual releases.</td></tr>
+<tr><td class="name">Burst.js IE support</td><td>Maybe one day, who knows?</td></tr>
+</table>
+</div>
+
+
+<div class="subject">
+<h3><a name="links">Userful Links</a></h3>
+<ol>
+  <li><a href="http://hyper-metrix.com/">Hyper-metrix.com</a> Home of Burst</li>
+  <li><a href="http://github.com/F1LT3R/burst/tree/master">GitHub Master</a> Burst's Public Repository</li>
+</ol>
+</div>
+  
+</div><div class="pageend"></div>    
+
+
+
+
+
+<div class="pagetop"><h1>Reference</h1></div><div class="pageloop">
+
+<div class="subject">
+<h3><a name="ref-timeline">.timeline()</a></h3>
+<p>The timeline() command references a new or existing timeline object inside your Burst animation. A timeline can be thought of as a container for objects that are animated over time. A timeline can be played at different speeds or reversed. When a timeline moves, all it's children move. When a timeline has effects it's children are inherit (or not) these effects. A timeline can contain other timelines. Each timeline can act like a single object, with rotation, scale, transparency etc.</p>
+<p>Object initilization:</p>
+<pre>Burst.timeline("myTimeline", start, length, speed, looping);</pre>
+<p>Property access:</p>
+<pre>Burst.timeline("myTimeline").fill = "ff0000ff";</pre>
+<p>Property animation:</p>
+<pre>
+Burst.timeline("myTimeline")
+  .track("fill")
+    .key(0, "ff0000ff")
+    .key(100, "00ff00ff");
+</pre>
+<p>Possible children:</p>
+<ol class="children">
+  <li>timeline();</li>
+  <li>shape();</li>
+  <li>track();</li>
+  <li>fx();</li>
+</ol>
+<p>Possible properties:</p>
+<table>
+<tr><th>Name:</th><th>Init./default Value:</th></tr>
+<tr><td>name</td><td>value passed at init.</td></tr>
+<tr><td>width</td><td>Canvas width</td></tr>
+<tr><td>height</td><td>Canvas height</td><tr>
+<tr><td>type<tr><td>"timeline"</td><tr>
+<tr><td>frameOffset</td><td>0</td><tr>
+<tr><td>lastFrame</td><td>value passed at init.</td><tr>
+<tr><td>playSpeed</td><td>value pass at init.</td><tr>
+<tr><td>loop</td><td>value passed at init</td><tr>
+<tr><td>paused</td><td>false</td><tr>
+<tr><td>frame</td><td>0</td><tr>
+<tr><td>callbackfired</td><td>false</td><tr>  
+<tr><td>randomCount</td><td>0</td><tr>
+<tr><td>playMode</td><td>forward</td><tr> 
+<tr><td>scl</td><td>1.0</td><tr>
+<tr><td>sclX</td><td>1.0</td><tr>
+<tr><td>sclY</td><td>1.0</td><tr>
+<tr><td>left</td><td>0</td><tr>
+<tr><td>top</td><td>0</td><tr>
+<tr><td>rot</td><td>0</td><tr>
+<tr><td>strokeW</td><td>0</td><tr>
+<tr><td>strokeHex, strokeRGBA[]</td><td>"00000000", [0, 0, 0, 0]</td><tr>
+<tr><td>strokeR, strokeG, strokeB, strokeA</td><td>0, 0, 0, 0</td><tr>
+<tr><td>fillHex, fiilRGBA[]</td><td>"00000000", [0, 0, 0, 0]</td><tr>
+<tr><td>fillR, fillG, fillB, fillA</td><td>0, 0, 0, 0</td><tr>
+<tr><td>opac</td><td>0.0</td><tr>
+<tr><td>centerX</td><td>Canvas middle</td><tr>
+<tr><td>centerY</td><td>Canvas middle</td><tr>
+<tr><td>isParent</td><td>link to object's parent</td><tr>
+<tr class="children"><td>timelines[]</td><td>array[]</td><tr>
+<tr class="children"><td>shapes[]</td><td>array[]</td><tr>
+<tr class="children"><td>tracks[]</td><td>array[]</td><tr>
+<tr class="children"><td>effects[]</td><td>array[]</td><tr>
+</table>
+</div>
+
+
+
+<div class="subject">
+<h3><a name="ref-shape">.shape()</a></h3>
+<p>A shape is an object containing vertexes or points to be rendered onto the Canvas. Shapes can be drawn with curves, straight lines and even raw vertexes exported from Blender3D or imported as SVGs. Shapes can include other shapes. A shape can have <i>types</i> such as "subpath" which leaves an open path, very userful for creating subtractive shapes (shapes with holes) using the non-zero or 'opposite winding' rule.</p>
+</p>
+<p>Object initilization:</p>
+<pre>Burst.timeline("myTimeline").shape("name", "url", drawmode, left, top, scale, rotation, stoke width, "stroke color", "fill color", zIndex);</pre>
+<p>Property access:</p>
+<pre>Burst.timeline("myTimeline").shape("myShape").fill = "ff0000ff";</pre>
+<p>Property animation:</p>
+<pre>
+Burst.timeline("myTimeline")
+  .shape("myShape")
+  .track("fill")
+    .key(0, "ff0000ff")
+    .key(100, "00ff00ff");
+</pre>
+<p>Possible children:</p>
+<ol class="children">
+  <li>shape();</li>
+  <li>track();</li>
+  <li>fx();</li>  
+</ol>
+<p>Possible properties:</p>
+<table>
+<tr><th>Name:</th><th>Default Value:</th></tr>
+<tr><td>name</td><td>value passed at init.</td></tr>
+<tr><td>url</td><td>url to AJAX shape data from</td></tr>
+<tr><td>obj[]</td><td>actual shape data, can be passed as array if you don't want to use AJAX</td></tr>
+<tr><td>width</td><td>Canvas width</td></tr>
+<tr><td>height</td><td>Canvas height</td><tr>
+<tr><td>mode</td><td>Drawmode: Shape, subpath, verts, SVG etc. Value passed at 
+init.</td><tr>
+<tr><td>winding</td><td>1 (-1 reverses draw-order)</td><tr>
+<tr><td>type<tr><td>"shape"</td><tr>
+<tr><td>frameOffset</td><td>0</td><tr>
+<tr><td>lastFrame</td><td>value passed at init.</td><tr>
+<tr><td>playSpeed</td><td>value pass at init.</td><tr>
+<tr><td>loop</td><td>value passed at init</td><tr>
+<tr><td>paused</td><td>false</td><tr>
+<tr><td>frame</td><td>0</td><tr>
+<tr><td>callbackfired</td><td>false</td><tr>  
+<tr><td>randomCount</td><td>0</td><tr>
+<tr><td>playMode</td><td>forward</td><tr> 
+<tr><td>scl</td><td>1.0</td><tr>
+<tr><td>sclX</td><td>1.0</td><tr>
+<tr><td>sclY</td><td>1.0</td><tr>
+<tr><td>left</td><td>0</td><tr>
+<tr><td>top</td><td>middle of cavas</td><tr>
+<tr><td>rot</td><td>0</td><tr>
+<tr><td>strokeW</td><td>0</td><tr>
+<tr><td>strokeHex, strokeRGBA[]</td><td>"00000000", [0, 0, 0, 0]</td><tr>
+<tr><td>strokeR, strokeG, strokeB, strokeA</td><td>0, 0, 0, 0</td><tr>
+<tr><td>fillHex, fiilRGBA[]</td><td>"00000000", [0, 0, 0, 0]</td><tr>
+<tr><td>fillR, fillG, fillB, fillA</td><td>0, 0, 0, 0</td><tr>
+<tr><td>opac</td><td>0.0</td><tr>
+<tr><td>centerX</td><td>Canvas middle</td><tr>
+<tr><td>centerY</td><td>Canvas middle</td><tr>
+<tr><td>isParent</td><td>link to object's parent</td><tr>
+<tr class="children"><td>shapes[]</td><td>array[]</td><tr>
+<tr class="children"><td>tracks[]</td><td>array[]</td><tr>
+<tr class="children"><td>effects[]</td><td>array[]</td><tr>
+</table>
+</div>
+
+
+
+
+
+
+
+<div class="subject">
+<h3><a name="ref-track">.track()</a></h3>
+<p>Tracks or 'property-tracks' are small timeline-like objects containing key frames. Each track is linked to a property of it's parent EG: 'scale'. The value of the key frames adjust the relevant property as the timeline is played.</p>
+<p>Object initilization:</p>
+<pre>Burst.timeline("myTimeline").shape("myShapen").track("track-property");</pre>
+<p>Property access:</p>
+<pre>Burst.timeline("myTimeline").shape("myShape").isParent = Burst.timeline("myTimeline").shape("myOTHERShape");</pre>
+<p>Possible children:</p>
+<ol class="children">
+  <li>key();</li>  
+</ol>
+<p>Possible properties:</p>
+<table>
+<tr><th>Name:</th><th>Default Value:</th></tr>
+<tr><td>name</td><td>value passed at init.</td></tr>
+<tr><td>property</td><td>Value passed at init.</td></tr>
+<tr><td>keys[]</td><td>array[]</td></tr>
+<tr><td>isParent</td><td>parent node in chain</td></tr>
+</table>
+</div>
+
+
+
+
+<div class="subject">
+<h3><a name="ref-key">.key()</a></h3>
+<p>A key or 'key-frame' contains animation properties for an object at a given frame. Think of keys as markers that the animation engine uses to interpret what the Canvas should look like at any given moment. When the current frame of a timeline matches the key's frame property, the value from the key() is dumped directly into the object's property variable. All frames between key()'s are interpreted based on the speed of the timeline and the ease-type being affected.</p>
+<p>Object initilization:</p>
+<pre>Burst.timeline("myTimeline").shape("myShapen").track("track").key(frame, value, easing);</pre>
+<p>Property access:</p>
+<pre>N/A</pre>
+<p>Possible children:</p>
+<pre>none</pre>
+<p>Possible properties:</p>
+<table>
+<tr><th>Name:</th><th>Default Value:</th></tr>
+<tr><td>frame</td><td>Value passed at init.</td></tr>
+<tr><td>property</td><td>Value passed at init.</td></tr>
+<tr><td>easing</td><td>Value passed at init.</td></tr>
+</table>
+</div>
+
+
+
+
+<div class="subject">
+<h3><a name="ref-chain">.chain()</a></h3>
+<p>The .chain() command is a method of the Burst Master Controller. When calling <i>Burst.chain("timeline1;timeline2");</i>, Burst will load these timelines into it's buffer ready to be played one after the other. You may optionaly specify a callback routine.</p>
+<pre>Burst.chain("timeline1;timeline2", function(){} );</pre>
+</div>
+
+
+
+<div class="subject">
+<h3><a name="ref-play">.play()</a></h3>
+<p>The .play() command is a method of the Burst Master Controller. Play begins or continues playing the timelines loaded to the buffer.</p>
+<pre>Burst.play();</pre>
+</div>
+
+
+<div class="subject">
+<h3><a name="ref-pause">.pause()</a></h3>
+<p>The .pause() command is a method of the Burst Master Controller. This will pause the animation at the current frame until .play() is called again.</p>
+<pre>Burst.pause();</pre>
+</div>
+
+
+
+
+<div class="subject">
+<h3><a name="ref-commandchaining">Command Chaining</a></h3>
+<pre>   
+Burst.timeline("party", 0, 25, .5, false)
+  .shape("balloon", "balloon.svg", "outline")
+    .track("top")
+      .key(1, 100)
+      .key(25, -20);   
+</pre>   
+<p>The above five lines of code create a timeline, add a shape, add a property  track to the shape, and then add keyframes to the track. Can you read what it does? It creates a timeline called 'party', adds a shape called 'balloon', adds keyframes to the "top" property of the balloon, making it rise off the canvas in 25 frames.</p>
+<p>(But it will really take 50 frames because the playback speed of this timeline is set to ".5" Negative values will play in reverse. )</p>
+<p>This shorthand "chaining" way of writting code is great for several reasons.   
+<ol><li>It is quick to write.</li>
+<li>It is easy to read.</li>
+<li>It saves download Kbs.</li></ol>
+</p>   
+<p>I wrote Burst's chaining method a differently from jQuery because it's  Objects do not relate to any kind of DOM tree. In jQuery one would climb up and down the tree something like this:
+<pre>
+$(myObject).children(childObject).value(setValue).parent().children(childObject2).value(setValue2);
+   ...or...
+$(myObject).children(childObject).value(setValue).next(childObject2).value(setValue2);</pre>
+<p>This is great for DOM manipulation, but too bulky for a simple key framing  system. In Burst you can call a new parent at any time and Burst will return the matching object for manipulation. Watch this:</p>
+<pre>
+Burst.timeline("party", 0, 25, .5, false)
+  .shape("balloon", "balloon.svg")
+  .shape("cake", "cake.svg")
+    .track("left")
+      .key(1, 50)
+      .key(25, 100)
+  .shape("balloon")
+    .track("top")
+      .key(1, 100)
+      .key(25, -20);            
+</pre>
+<p>Even though the shape ballon was already called, and the chain's level was at the "key-frame" editing point... calling .shape("balloon") will cause Burst to return the previous balloon object without the coder having to climb up and down the tree. This becomes really useful if you wish to add 30 objects to one timeline .shape(1).shape(2).shape(3) at different X,Y points and then use the "top", "left" property track of the timeline to control the position of all the shapes at once.</p>   
+<p>For clarrification, the above examples can be written in one string like so:   
+<pre>Burst.timeline("party", 0, 25, .5, false).shape("balloon", "balloon.svg").shape("cake", "cake.svg").track("left").key(1, 50).key(25, 100).shape("balloon").track("top").key(1, 100).key(25, -20);</pre></p>
+</div>
+
+
+</div><div class="pageend"></div>    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div><!-- main -->  
+</div>      
+</body>
+</html>
