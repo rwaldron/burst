@@ -37,14 +37,14 @@
             <h1>Command Chaining</h1>          
             <p><b>Command chaining is the ability to chain commands together into one long line.</b> This is the same technique jQuery uses so well to traverse the DOM. Similar to jQuery, Burst assumes the last node as being 'current' when creating a chain. For example: the current node is the property track named "fill" in this example:</p>
 <pre>Burst.timeline("myTimeline").shape("myShape").track("fill")</pre>
-<p>Burst, timeline, shape and track are all 'Objects'. When you call an object, it returns it's self. So <i>Burst.timeline("myTimeline").left = 100;</i> will change myTimeline's left property. But if you wanted to change properties of multiple objects you would do this:</p>
+<p>Burst, timeline, shape and track are all 'Objects'. When you call an object, it returns its self. So <i>Burst.timeline("myTimeline").left = 100;</i> will change myTimeline's left property. But if you wanted to change properties of multiple objects you would do this:</p>
 <pre>
 Burst.timeline("myTimeline").track("left").key(0, 100)
   .shape("myShape").track("left").key(0, 100)
   .shape("myOtherShape").track("left").key(0, 100);
 </pre>
 <h2>Quick Node Traversal</h2>
-<p>Different to jQuery, back-tracking up the chain is possible with out referencing having to use <i>.parent()</i>. When you want to access a parent node, simple call it's name again like so:</p>
+<p>In contrast to jQuery, back-tracking up the chain is possible without having to use <i>.parent()</i>. When you want to access a parent node, simply call its name again like so:</p>
 <pre>
 01 Burst.timeline("myTimeline")
 02  .shape("SHAPE1")
@@ -54,7 +54,7 @@ Burst.timeline("myTimeline").track("left").key(0, 100)
 06  .shape("SHAPE1")
 07    .track("left").key(0, 100);    
 </pre>            
-<p>As you can see on <b>line 6</b>, "shape1" is being re-accessed without any reference to it's location in the object model. This task is performed by an internal lookup that references the original object if it already exists. If it does not exist, a new object is created with this name and returned as the current node.</p>
+<p>As you can see on <b>line 6</b>, "shape1" is being re-accessed without any reference to its location in the object model. This task is performed by an internal lookup that references the original object if it already exists. If it does not exist, a new object is created with this name and returned as the current node.</p>
 <p><b>NOTE:</b> It impossible to create 2 objects of the same class with the same name. If you try, the original object with the same name will be returned as the current object.</p>            
                                 
         </div>

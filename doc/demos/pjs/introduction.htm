@@ -44,9 +44,9 @@
                     <li>PDE, the native Processing versionof Burst</li>
                     <li>JS, the bare JavaScript version of Burst</li>
                   </ol>
-                  <p>The idea is that all versions of Burst act the same way, have the same commands and share the same features. As of version 0.3.xx this is true of Burst PJS and Burst JS. The PDE and the PJS should <i>always</i> run from the same peice of code. If this means updating Processing.js, so be it. As you can see, even though we are in the PJS documentation, we are loading the burst.x.x.x.pde file. I am hoping this means we can Burst in Applet form to add IE6 aupport where absolutely necessary.</p>
+                  <p>The idea is that all versions of Burst act the same way, have the same commands and share the same features. As of version 0.3.xx this is true of Burst PJS and Burst JS. The PDE and the PJS should <i>always</i> run from the same piece of code. If this means updating Processing.js, so be it. As you can see, even though we are in the PJS documentation, we are loading the burst.x.x.x.pde file. I am hoping this means we can Burst in Applet form to add IE6 aupport where absolutely necessary.</p>
               </li>
-              <li><p><b>ICE: Integrated Coding Environment</b> is this little web-app-ish page I have built for the documentation. ICE allows you to play with the code in the example which should be handy for testing out new features etc. You will have to click <b>[RUN]</b> to start the Burst script. The 'Version' attribute will not appear in the document until a script is run because... well the script is telling the document which version it's running and updates using jQuery.</p>
+              <li><p><b>ICE: Integrated Coding Environment</b> is this little web-app-ish page I have built for the documentation. ICE allows you to play with the code in the example which should be handy for testing out new features etc. You will have to click <b>[RUN]</b> to start the Burst script. The 'Version' attribute will not appear in the document until a script is run because... well the script is telling the document which version its running and updates using jQuery.</p>
                 <p><b>There will be more features coming to ICE in time, such as:</b>
                 <ol>
                   <li>a shape object browser</li>
@@ -55,12 +55,12 @@
                  </ol>
                  </p>
               </li>
-              <li><p><b>Burst include:</b> currently Burst is included in a Processing.js script by adding <b>//burstEngine</b> to very start. Processing.js then parses it along side the rest of the script. Frankly this was a real cheap-shot and needs to be fixed for several reasons. For example: you shouldn't have to update your Processing.js, just because you move your Burst.PDE file.</p>
+              <li><p><b>Burst include:</b> currently Burst is included in a Processing.js script by adding <b>//burstEngine</b> to very start. Processing.js then parses it alongside the rest of the script. Frankly this was a real cheap-shot and needs to be fixed for several reasons. For example: you shouldn't have to update your Processing.js just because you move your Burst.PDE file.</p>
               <li><p><b>Latest version:</b> The latest version of Burst will always be running in these docs, which I hope will help crate a few benchmarks.</p></li> 
               </li>
             </ol>
             <h2>Get creative</h2>
-            <p>Now you've read the boring bit, dive in to the code, change some stuff and hit <b>[RUN]</b>. Remember... this is a Processing.js script you are editing. jQuery, Processing and Burst are running, so you can make use of all of these in your script if you need to.</p>                    
+            <p>Now you've read the boring bit, dive into the code, change some stuff and hit <b>[RUN]</b>. Remember... this is a Processing.js script you are editing. jQuery, Processing and Burst are running, so you can make use of all of these in your script if you need to.</p>                    
         </div>
         <span><b>Burst PJS Introduction:</b> Using version: <span class="version">???</span></span>
     </div>
@@ -107,10 +107,10 @@ Burst.timeline("colors", 0, 100, 1, false)
       .track("fill").key(1,  "000000ff", "linear").key(50, "ff0000ff", "linear").key(100,"00ff00ff");
 
 /*
-You can change the fill and stroke opacity hexes independantly of the shape's
+You can change the fill and stroke opacity hexes independently of the shape's
 total opacity. This is useful if you want to do something like change the 
 opacity of the stroke to 0.5 and then use the object's global opacity to control
-both opacity's together. So setting strokeColor to "00000088" and object.opac 
+both opacities together. So setting strokeColor to "00000088" and object.opac 
 to "0.5" your actual strokeColor will be "00000044". 
 */
 
