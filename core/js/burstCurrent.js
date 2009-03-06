@@ -1,5 +1,6 @@
+
 /*
-    Burst Engine 0.3.20 - http://hyper-metrix.com/#burst        
+    Burst Engine 0.3.30 - http://hyper-metrix.com/#burst        
     Copyright (c) 2009 Alistair MacDonald        
     
     MIT License
@@ -28,7 +29,16 @@
 
 // (function(){this.burst = function burst() {})(); //make global later
 
-//////// C O R E - F U N C T I O N S ///////////////////////////////////////////
+//////// U S E F U L - F U N C T I O N S ///////////////////////////////////////////
+
+function has(needle,hay){
+  if(hay.indexOf(needle,0)>-1){
+    return true;
+  } else {
+    return false;
+  };
+};  
+
 function hexRGBA(hex){  
   var RGBA = toNumbers(hex);
   function toNumbers(str){
@@ -39,6 +49,19 @@ function hexRGBA(hex){
     return ret;
   }
   return RGBA;
+}
+
+
+function toHex(decimal){
+  var hexTable = "0123456789ABCDEF";
+  if(decimal<0){
+    return "00";
+  } else if(decimal>255){
+    return "ff";
+  }
+  var c1=Math.floor(decimal/16);
+  var c2=decimal%16;
+  return hexTable.charAt(c1)+hexTable.charAt(c2);
 }
 
 function radians(aAngle){
@@ -56,6 +79,7 @@ Array.prototype.remove = function(from, to) {
 
 //////// M A S T E R - C O N T R O L E R ///////////////////////////////////////
 function burst(name,width,height){
+  this.version = "Burst.js.0.3.30"
   this.name=name;
   this.urlIndex=[];
   this.ajaxMem=[];
@@ -87,18 +111,19 @@ function burst(name,width,height){
     return "YES!";
   }
   
-  burst.prototype.start=function(tl,cb){
+  burst.prototype.start=function(tls,cb){
+    var thisBurstInstance=this;
     buffer=[];
-    for(var i=0;i<tl.length;i++){
-      if(typeof tl[i]=="string"){
-        for (var j=0;j<this.timelines.length;j++){         
-          this.timelines[j].name==tl[i]?this.load(this.timelines[j],cb):0;
+    var tl=tls.split(";");
+    for(var j=0;j<this.timelines.length;j++){
+      for(var i=0;i<tl.length;i++){
+        if(this.timelines[j].name==tl[i]){
+          this.load(this.timelines[j],cb);
+          break;
         }
-      } else {
-        load(tl[i],cb);
       }
     }
-    this.play();
+    this.play();        
   }
   
   burst.prototype.chain=function(tlchain,cb){
@@ -123,12 +148,13 @@ function burst(name,width,height){
         this.load(this.timelines[j],nextcb);
         break;
       }
-    }        
-  }    
+    }
+    this.play();        
+  }
 
   burst.prototype.pause=function(){
       return this.paused?this.paused=false:this.paused=true;
-    }
+  }
 
   burst.prototype.pauseAt=function(tl,onFrame){
     for (var i=0; i<tl.length; i++){
@@ -201,95 +227,257 @@ function burst(name,width,height){
     //console.log(points);
     return points;
   }
-  
-  
-  
+    
   burst.prototype.loadRAW=function(url){}
   
-  // Load and pass an SVG file...
+  
+  
+  // Load SVG file...
   burst.prototype.loadSVG=function(url){
-    thisBurstInstance=this;
-    function parseXML(){      
+    var xmlDoc; 
+    var gradients=[];
+    var O = new SVG("url"); // The new SVG object to be returned
+    
+    // Load XML doc AJAX
+    function loadXML(){
       try{xmlDoc=new ActiveXObject("Microsoft.XMLDOM");}
       catch(e){try{xmlDoc=document.implementation.createDocument("","",null);}
       catch(e){alert(e.message);return;}}
       xmlDoc.async=false;      
       xmlDoc.load(url);
-      var svg = xmlDoc.getElementsByTagName("svg")[0];
-      var docWidth=parseFloat(svg.getAttribute("width"));
-      var docHeight=parseFloat(svg.getAttribute("height"));
-                        
-      thisBurstInstance.XMLflow(svg);
-    }                
-    parseXML();
-  }
-  
-  burst.prototype.XMLflow=function(node, cb){
-    var Processing = true;
-    var x, y, x1, y1, x2, y2;
-    ctx.scale(.7,.7);
+      svg=xmlDoc.getElementsByTagName("svg")[0];
+      O.width=parseFloat(svg.getAttribute("width"));
+      O.height=parseFloat(svg.getAttribute("height"));
+      parseSVG(svg);
+    }
     
-    for(var i=0;i<node.childNodes.length;i++){
-      curNode = node.childNodes[i];
-      curTagName = node.childNodes[i].tagName;
-      switch(curTagName){
-      case "g": // Group <g></g>
-          
-          ctx.save();
-          console.log("------transform--------");
-          var p = curNode.getAttribute("transform");
-          console.log(p);
-          var rg=new RegExp("[0-9]+.[0-9]+", "g");
-          var t=0;var c=[];
-          while(coord=rg.exec(p)){c[t]=coord;t++;}
-          //ctx.transform(c[0],c[1],c[2],c[3],c[4],c[5]);          
-          
-        this.XMLflow(curNode, function(){ctx.restore();} );
-        break;
-      case "path": // <path />
-          var id = curNode.getAttribute("id");
-          console.log(id);
-          var p = curNode.getAttribute("transform");          
-          console.log(p);          
-          var rg=new RegExp("[0-9]+.[0-9]+", "g");
-          x=parseFloat(rg.exec(p));y=parseFloat(rg.exec(p));
-          !x?x=0:0;!y?y=0:0;
-          
-          
-          ctx.save();
-          ctx.translate(x,y);
-          
-          var pData = curNode.getAttribute("d");
-          var regex=new RegExp("[mzlhvcqtaMZLHVCQTA][^mzlhvcqtaMZLHVCQTA]+", "g");
-          while(command=regex.exec(pData)){
-            switch(command[0][0]){
-              case "M": // moveTo() --absolute                
-                var rgx=new RegExp("[0-9][^,]+", "g");
-                x = parseFloat(rgx.exec(command[0]));
-                y = parseFloat(rgx.exec(command[0]));
-                ctx.moveTo(x,y);
-                break;
-              case "C": // curveTo() --absolute
-                var rgx=new RegExp("[0-9][^,|^ ]+", "g");                
-                var t=0;var c=[];
-                while(coord=rgx.exec(command[0])){c[t] = parseFloat(coord);t++;}
-                ctx.bezierCurveTo(c[0],c[1],c[2],c[3],c[4],c[5]);
-                //console.log(c[0],c[1],c[2],c[3],c[4],c[5]);
-                break;
+    function parseSVG(node){      
+      var doFill=false;
+      var doStroke=false;
+      var doState=false;  
+      var sc=[]; // stroke color
+      var fc=[]; // fill color
+      var o=1.0; // opacity      
+      
+      // Regular expressions for SVG
+      var findURLGradient = "(url[(]#)(.[^)]+)";
+      var findHEXColor = "(#[0-9a-f]{6})";
+      var findTranslate = "(translate[(])([0-99\. \-]+)(,)([0-99\. \-]+)";
+      var findMatrix = "(matrix[(])([0-9\-\. ]+)(,)([0-9\-\. ]+)(,)([0-9\-\. ]+)(,)([0-9\-\. ]+)(,)([0-9\-\. ]+)(,)([0-9\-\. ]+)([)])"
+      var findPathCommands = "([a-zA-Z][0-9\- \.\,]+[^a-zA-Z])|(z|Z)";
+      var findXYx2 = "([0-9\-\.]+){2}";
+      var findXYx6 = "([0-9\-\.]+)"; //"([0-9\-\.]+){6}";
+      // Regular expression function
+      regex=function(needle, hay){
+        var regexp=new RegExp(needle,"g");
+        var i=0;
+        var results=[];
+        while(results[i]=regexp.exec(hay)){i++;}
+        return results;
+      }
+  
+      // :: Transform & Matrix :::::::::::::::::::::::::::::::::::::::::::::::::::
+      transform=function(node){
+        //O.add([],function(){ctx.save();});
+        //doState=true;
+        var p = curNode.getAttribute("transform");
+        if(v=regex(findTranslate,p)[0]){O.add([v[2],v[4]],function(a){ctx.translate(a[0],a[1]);});}
+        if(v=regex(findMatrix,p)[0]){O.add([v[2],v[4],v[6],v[8],v[10],v[12]],function(a){ctx.transform(a[0],a[1],a[2],a[3],a[4],a[5]);});}
+      }
+      // :: Path :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      path=function(node){
+        O.add(0,function(){ctx.beginPath();});
+        transform(curNode);
+        command=regex(findPathCommands,curNode.getAttribute("d"));
+        for(var i=0;i<command.length-1;i++){
+          switch(command[i][0][0]){
+          case "M":c=regex(findXYx2,command[i][0]);O.add([c[0][0],c[1][0]],function(a){ctx.moveTo(a[0],a[1])});break;
+          case "C":c=regex(findXYx6,command[i][0]);O.add([c[0][0],c[1][0],c[2][0],c[3][0],c[4][0],c[5][0]],function(a){ctx.bezierCurveTo(a[0],a[1],a[2],a[3],a[4],a[5]);});break; 
+          case "L":c=regex(findXYx2,command[i][0]);O.add([c[0][0],c[1][0]],function(a){ctx.lineTo(a[0],a[1])});break;            
+          case "Z":O.add(0,function(){ctx.closePath()});break;
+          case "z":O.add(0,function(){ctx.closePath()});break;          
+          }
+        }
+        style(curNode);
+        doFill?O.add(0,function(){ctx.fill()}):0;
+        doStroke?O.add(0,function(){ctx.stroke()}):0;
+      }
+      // :: Rect :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      rect=function(node){
+        transform(curNode);
+        var width = curNode.getAttribute("width");
+        var height = curNode.getAttribute("height");
+        var x = curNode.getAttribute("x");
+        var y = curNode.getAttribute("y");
+        style(curNode);
+        doFill?O.add([x,y,width,height],function(a){ctx.fillRect(a[0],a[1],a[2],a[3])}):0;        
+        doStroke?O.add([x,y,width,height],function(a){ctx.strokeRect(a[0],a[1],a[2],a[3])}):0;
+      }
+      // :: Style ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      style=function(curNode){
+        doFill=false;
+        doStroke=false;
+        o=1;
+        var styles = curNode.getAttribute("style").split(";");        
+        for(var i=0;i<styles.length;i++){
+          var propval = styles[i].split(":");
+          //console.log(propval); 
+          switch(propval[0]){
+          case "stroke-width": var linewidth = parseFloat(propval[1]); O.add(linewidth,function(a){ctx.lineWidth=a;}); break;
+          case "stroke-linecap": var linecap = propval[1]; O.add(linecap,function(a){ctx.lineCap=a;}); break;
+          case "stroke-linejoin": var linejoin = propval[1]; O.add(linejoin,function(a){ctx.lineJoin=a;}); break;
+          case "stroke-miterlimit": var miterlimit = parseFloat(propval[1]);O.add(miterlimit,function(a){ctx.miterLimit=a;}); break;
+          case "stroke":
+              if(propval[1]!="none"){
+                doStroke=true;
+                if(has("url(#",propval[1])){
+                  var gradientURL=regex(findURLGradient,propval[1])[0][2];
+                  for(var u=0;u<gradients.length;u++){
+                    if(gradients[u][0]==gradientURL){                    
+                        O.add(gradients[u][1],function(a){ctx.strokeStyle=a;});
+                        break;
+                    }
+                  }
+                }else if(has("#",propval[1])){
+                  sc=hexRGBA(propval[1].substr(1,6));
+                  O.add(propval[1],function(a){ctx.strokeStyle=a;});
+                }
+              }
+              /*if(propval[1]=="none"){
+                doStroke=false;
+              }else{
+                doStroke=true;sc=hexRGBA(propval[1].substr(1,6));
+                O.add(propval[1],function(a){ctx.strokeStyle=a;})
+              };*/              
+              break;
+          case "stroke-opacity":
+            if(doStroke){
+              o=propval[1]; // opacity (not same as SVGobject 'O')
+              O.add('rgba('+sc[0]+','+sc[1]+','+sc[2]+','+propval[1]+')',function(a){ctx.strokeStyle=a;});
+            }
+            break;                        
+          case "fill":
+            if(propval[1]!="none"){
+              doFill=true;
+              if(has("url(#",propval[1])){
+                var gradientURL=regex(findURLGradient,propval[1])[0][2];
+                for(var u=0;u<gradients.length;u++){
+                  if(gradients[u][0]==gradientURL){                    
+                      O.add(gradients[u][1],function(a){ctx.fillStyle=a;});
+                      break;
+                  }
+                }
+              }else if(has("#",propval[1])){
+                fc=hexRGBA(propval[1].substr(1,6));
+                O.add(propval[1],function(a){ctx.fillStyle=a;});
+              }
+            }
+            break;
+          case "fill-opacity":
+            if(doFill){
+              O.add('rgba('+fc[0]+','+fc[1]+','+fc[2]+','+propval[1]+')',function(a){ctx.fillStyle=a;});
+            }
+            break;    
+          }
+        }
+        return; 
+      }
+      // :: Gradients ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      gradient=function(node,type){
+        switch(type){
+        case "linear":
+          var xlink="";
+          if(xlink=node.getAttribute("xlink:href")){
+            var x1=node.getAttribute("x1");
+            var y1=node.getAttribute("y1");
+            var x2=node.getAttribute("x2");
+            var y2=node.getAttribute("y2");
+            gradients[gradients.length]=[node.getAttribute("id"),ctx.createLinearGradient(x1,y1,x2,y2)];
+            //O.add(function(){lingrad = ctx.createLinearGradient(x1,y1,x2,y2)});
+            xlink=xlink.split("#")[1];
+            var i=0;
+            var colorStop;
+            while(colorStop=xmlDoc.getElementById(xlink).getElementsByTagName("stop")[i]){i++;
+              var stopStyle;
+              var j=0;
+              while(stopStyle=colorStop.getAttribute("style").split(";")[j]){j++;
+                var stopOffset=colorStop.getAttribute("offset");
+                var stopProp=stopStyle.split(":");
+                switch(stopProp[0]){
+                  case "stop-color":var gc=hexRGBA(stopProp[1].substr(1,6));break;
+                  case "stop-opacity":var go=stopProp[1];break;
+                }
+              }
+              gradients[gradients.length-1][1].addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+go+')');
+              //O.add(function(){lingrad.addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+go+')')});
             }
           }
-          //ctx.closePath();
-          //ctx.fill();    
-          ctx.lineWidth=3;
-          ctx.stroke();
-          ctx.restore();
-        break;                
+          break;
+        case "radial":
+          var xlink="";          
+          if(xlink=node.getAttribute("xlink:href")){
+            var cx=node.getAttribute("cx");
+            var cy=node.getAttribute("cy");
+            var r =node.getAttribute("r");
+            var fx=node.getAttribute("fx");
+            var fy=node.getAttribute("fy");
+            //c=regex(findXYx6,node.getAttribute("gradientTransform"));            
+            gradients[gradients.length]=[node.getAttribute("id"),ctx.createRadialGradient(cx,cy,0,fx,fy,r)];
+            xlink=xlink.split("#")[1];
+            var i=0;
+            var colorStop;
+            while(colorStop=xmlDoc.getElementById(xlink).getElementsByTagName("stop")[i]){i++;
+              var stopStyle;
+              var j=0;
+              while(stopStyle=colorStop.getAttribute("style").split(";")[j]){j++;
+                var stopOffset = colorStop.getAttribute("offset");
+                var stopProp = stopStyle.split(":");
+                switch(stopProp[0]){
+                  case "stop-color":var gc=hexRGBA(stopProp[1].substr(1,6));break;
+                  case "stop-opacity":var go=stopProp[1];break;
+                }
+              }
+              gradients[gradients.length-1][1].addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+go+')');
+            }
+          }
+          break;
+        }
+      }
+      
+      // Parse Tags by Name
+      for(var i=0;i<node.childNodes.length;i++){
+        curNode = node.childNodes[i];
+        curTagName = node.childNodes[i].tagName;        
+        switch(curTagName){
+          case "defs"          :parseSVG(curNode);break;
+          case "linearGradient":gradient(curNode,"linear");break;
+          case "radialGradient":gradient(curNode,"radial");break;
+          case "g"             :
+              O.add([],function(){ctx.save();});
+              transform(curNode);parseSVG(curNode);
+              O.add([],function(){ctx.restore();});
+              break;
+          case "path"          :
+              O.add([],function(){ctx.save();});
+              path(curNode);
+              O.add([],function(){ctx.restore();});
+              break;
+          case "rect"          :
+              O.add([],function(){ctx.save();});
+              rect(curNode);
+              O.add([],function(){ctx.restore();});
+              break;
+        }
+        //doState?O.add(0,function(){ctx.restore();}):0;
+        
       }
     }
-    cb?cb():0;
+          
+    loadXML();
+    //console.log("svg loaded");
+    return O;
   }
   
-     
   burst.prototype.drawNextFrame=function(){
     if(!this.paused){
       ctx.clearRect(0,0,this.width,this.height);
@@ -298,7 +486,7 @@ function burst(name,width,height){
         this.buffer[i][0].play(this.buffer[i][1]);
       }
     }
-  }
+  }    
   
   burst.prototype.play=function(){
     var thisBurstInstance=this;
@@ -316,6 +504,35 @@ function burst(name,width,height){
   }
 ////////////////////////////////////////////////////////////////////////////////
 
+//////// S V G /////////////////////////////////////////////////////////////////
+function SVG(url, width, height){
+  this.url=url;
+  this.f=[]; // functions
+  this.a=[]; // arguments
+  this.c=0; // func/args count
+  this.width=width;
+  this.height=height;
+  }
+  SVG.prototype.url;
+  SVG.prototype.data;
+  
+  SVG.prototype.add=function(newArgs,newFunc){    
+    //console.log(newArgs, newFunc);
+    this.a[this.c]=newArgs;
+    this.f[this.c]=newFunc;
+    //console.log(this.f[this.c], this.a[this.c]);
+    this.c++;
+  }
+  
+  SVG.prototype.render=function(){
+    //console.log(this.a[0],this.f[0]);
+    for(var i=0;i<this.f.length;i++){
+      this.f[i](this.a[i]);
+    }
+  }
+       
+////////////////////////////////////////////////////////////////////////////////
+
 //////// T I M E L I N E ///////////////////////////////////////////////////////                                                            
 function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
   this.name=name;
@@ -328,6 +545,7 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
   this.loop=loop
   this.paused=false;
   this.shapes=[];
+  this.svgs=[];
   this.timelines=[];
   this.frame=0;
   this.callbackfired=false;    
@@ -417,7 +635,7 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
     //return aClone;
   }
     
-  // Return Shape
+  // Build &/or Return Shape
   timelineobject.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){                
         for(var i=0; i < this.shapes.length; i++){
             if (this.shapes[i].name==name){ 
@@ -465,7 +683,7 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
     return this.tracks[this.tracks.length-1];
   }
 
-  // Plat Timeline
+  // Play Timeline
   timelineobject.prototype.play=function(cb){
     this.playSpeed<0?playMode="backward":playMode="forward";        
         
@@ -487,26 +705,7 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
       }
     }
     
-    // Timeline style & matrix        
-    ctx.save();
-    ctx.translate(this.left+this.centerX,this.top+this.centerY);
-    ctx.rotate(radians(this.rot));    
-    this.sclX!=this.sclY?ctx.scale(this.sclX, this.sclY):ctx.scale(this.scl,this.scl);
-    ctx.translate(-this.centerX,-this.centerY);
-    ctx.doFill=true;
-    ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";  
-    ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
     
-    ctx.lineWidth=this.strokeW;
-    ctx.globalAlpha=this.opac;    
-    ctx.beginPath();
-      ctx.moveTo(0,0);
-      ctx.lineTo(this.width,0);
-      ctx.lineTo(this.width,this.height);
-      ctx.lineTo(0,this.height);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
                         
     // Timeline animator                  
     for(var i=0;i<this.tracks.length;i++){
@@ -544,7 +743,7 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
                 this.fillR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
                 this.fillG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
                 this.fillB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
-                this.fillA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);
+                this.fillA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);                
                 break;
               case "opac":this.opac=ease(e,x,t,b,c,d);break;
             }
@@ -564,7 +763,7 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
             this.strokeB=c[2];
             this.strokeA=1/255*c[3]            
             break;
-          case "fill":            
+          case "fill":
             var c=hexRGBA(curKey.value);
             this.fillR=c[0];
             this.fillG=c[1];
@@ -577,7 +776,25 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
       }
     }
 
-    //console.log(this.name, this.frame, this.strokeA);
+    // Timeline style & matrix        
+    ctx.save();
+    ctx.translate(this.left+this.centerX,this.top+this.centerY);
+    ctx.rotate(radians(this.rot));    
+    this.sclX!=this.sclY?ctx.scale(this.sclX, this.sclY):ctx.scale(this.scl,this.scl);
+    ctx.translate(-this.centerX,-this.centerY);
+    ctx.doFill=true;
+    ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";  
+    ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
+    ctx.lineWidth=this.strokeW;
+    ctx.globalAlpha=this.opac;    
+    ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.lineTo(width,0);
+      ctx.lineTo(width,height);
+      ctx.lineTo(0,height);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 
     // Shape animator
     for(var i=0;i<this.shapes.length;i++){  
@@ -663,14 +880,57 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
   }
 ////////////////////////////////////////////////////////////////////////////////
 
+//////// S V G /////////////////////////////////////////////////////////////
+function svgobject(name,url,left,top,scl,rot,zIndex,opac,isParent){
+  this.name=name;
+  this.url=url;
+  this.obj=burst.prototype.loadSVG(url);
+  this.isParent=isParent;      
+  !left?this.left=burst.width/2:this.left=left;
+  !top?this.top=burst.height/2:this.top=top;
+  !scl?this.scl=1:this.scl=scl;
+  !rot?this.rot=0:this.rot=rot;  
+  this.opac=1.0;
+  this.zIndex=1;
+  this.centerX=0;
+  this.centerY=0;  
+  this.type="svg";
+  this.tracks=[];
+  this.effects=[];
+  }
+  
+  svgobject.prototype.name;
+  svgobject.prototype.url;
+  svgobject.prototype.obj;  
+  svgobject.prototype.mode;
+  svgobject.prototype.left;
+  svgobject.prototype.top;
+  svgobject.prototype.scl;
+  svgobject.prototype.rot;
+  svgobject.prototype.opac;
+  svgobject.prototype.zIndex;        
+  svgobject.prototype.centerX;
+  svgobject.prototype.centerY;
+  svgobject.prototype.winding;
+  svgobject.prototype.type;
+  svgobject.prototype.tracks;
+  svgobject.prototype.effects;
+  svgobject.prototype.isParent;  
+
+  
+  svgobject.prototype.draw=function(){
+      this.obj.render();
+  }
+
+
 //////// S H A P E /////////////////////////////////////////////////////////////
 function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){
   this.name=name;
   this.url=url;
   this.obj=[];
   this.isParent=isParent;
-  this.checkMemory(this.isParent);
-  !mode?this.mode=mode:this.mode="edge";
+  this.mode=mode;
+  this.checkMemory(this.isParent);  
   !left?this.left=burst.width/2:this.left=left;
   !top?this.top=burst.height/2:this.top=top;
   !scl?this.scl=1:this.scl=scl;
@@ -692,6 +952,10 @@ function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zI
   this.zIndex=1;
   this.centerX=0;
   this.centerY=0;
+  if(mode=="svg"){
+    this.centerX=this.obj.width/2;
+    this.centerY=this.obj.height/2;
+  }
   this.winding=1;
   this.type="shape";
   this.tracks=[];
@@ -758,8 +1022,7 @@ function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zI
      
   // Check Memory & Load
   shapeobject.prototype.checkMemory=function(){
-    burstInstance = this.isParent.isParent;
-    //console.log(burstInstance);
+    burstInstance = this.isParent.isParent;    
     if(burstInstance.urlIndex.length>0){
       urlMatch=false;
       for(var i=0;i<burstInstance.urlIndex.length;i++){
@@ -771,60 +1034,67 @@ function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zI
       }
       if(urlMatch==false){
         burstInstance.urlIndex[burstInstance.urlIndex.length]=this.url;
-        burstInstance.ajaxMem[burstInstance.urlIndex.length]=burstInstance.loadOFF(this.url);
+        switch(this.mode){
+        case "off":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadOFF(this.url);break;
+        case "svg":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadSVG(this.url);break;
+        }
         this.obj=burstInstance.ajaxMem[burstInstance.urlIndex.length];
       }
     }else{
       burstInstance.urlIndex[burstInstance.urlIndex.length]=this.url;
-      burstInstance.ajaxMem[burstInstance.urlIndex.length]=burstInstance.loadOFF(this.url);
+      switch(this.mode){
+      case "off":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadOFF(this.url);break;
+      case "svg":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadSVG(this.url); break;
+      }
       this.obj=burstInstance.ajaxMem[burstInstance.urlIndex.length];
     }
     
   }
  
-  // Draw Shape
+  // [Draw Shape]
   shapeobject.prototype.draw=function(frame){    
-    
-    ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";             
-    ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
-    ctx.lineWidth = this.strokeW;
-      
-    ctx.translate(-this.centerX,-this.centerY);
-    if(this.mode=="edge"||this.mode=="curve"&&this.draw==true){
-      if(this.type=="shape"){
-        ctx.save();
-        ctx.translate(this.left+this.centerX,this.top+this.centerY); 
-        ctx.rotate(radians(this.rot+90));
-        ctx.beginPath();
-      }else{       
-        ctx.moveTo(-(this.obj[0][1]*this.scl), this.obj[0][0]*this.scl);
-      }
-    };        
-    
-    for(var i=0;i<this.obj.length;i++){
-      if(this.mode=="edge"){
-        ctx.lineTo(-(this.obj[i][1]*this.scl),this.obj[i][0]*this.scl);
-      }
-    }
-    ctx.lineTo(-(this.obj[0][1]*this.scl), this.obj[0][0]*this.scl);
-    
-    if(this.shapes.length>0){
-      this.drawChildren(); 
-    }
-    
-    if (this.mode=="edge"||this.mode=="curve"){
-      if (this.type=="shape"){
-        ctx.lineWidth=this.strokeW;
-        ctx.globalAlpha=1;
-        ctx.lineTo(-(this.obj[0][1]*this.scl),this.obj[0][0]*this.scl);        
-        ctx.closePath();        
-        ctx.doFill=true;
+
+    switch(this.mode){
+    case "off":
+        ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";             
+        ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
+        ctx.lineWidth = this.strokeW;      
+        ctx.translate(-this.centerX,-this.centerY);        
+        if(this.type=="shape"){
+          ctx.save();
+          ctx.translate(this.left+this.centerX,this.top+this.centerY); 
+          ctx.rotate(radians(this.rot+90));
+          ctx.beginPath();
+        }else{ ctx.moveTo(-(this.obj[0][1]*this.scl), this.obj[0][0]*this.scl); }
+        for(var i=0;i<this.obj.length;i++){ ctx.lineTo(-(this.obj[i][1]*this.scl),this.obj[i][0]*this.scl); }
+        ctx.lineTo(-(this.obj[0][1]*this.scl), this.obj[0][0]*this.scl);      
+        if(this.shapes.length>0){ this.drawChildren(); }
+        if (this.type=="shape"){
+          ctx.lineWidth=this.strokeW;
+          ctx.globalAlpha=1;
+          ctx.lineTo(-(this.obj[0][1]*this.scl),this.obj[0][0]*this.scl);        
+          ctx.closePath();
+          ctx.doFill=true;
+          ctx.restore();
+          ctx.stroke();
+          ctx.fill();
+        }
+        break;
+    case "svg":
+        ctx.save();        
+        ctx.translate(this.left+this.centerX,this.top+this.centerY);
+        ctx.rotate(radians(this.rot));
+        ctx.scale(this.scl,this.scl);        
+        ctx.translate(this.left-this.centerX,this.top-this.centerY);
+        this.obj.render();        
         ctx.restore();
-        ctx.stroke();
-        ctx.fill();
-      }
+        break;
     }
-  }
+    
+    
+    
+    
+  } // end of [Draw Shape]
 
   // Return Track
   shapeobject.prototype.track=function(property){
@@ -1011,5 +1281,4 @@ if(window.addEventListener){
 //window.HBurst = Burst;
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
