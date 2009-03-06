@@ -5,14 +5,28 @@ $(document).ready(function(){
       Processing(myCanvas, myPJSscript);
       $('span.version').text(window.Processing.data.burstVersion);
     }
-    initPJS(); //autoinit
+    try {initPJS();}catch(err){}// Auto init
+    
+
+    var initJS = function(myCanvas){
+      var myJSscript = $("#myBurstScript").val();
+      newBurst(myCanvas,myJSscript)
+      $('span.version').text(Burst.burstVersion);
+    }
+    initJS(); //autoinit
     
     $('#myBurstScript').focus(function(){ $(this).css({overflow:'scroll'}); });
     $('#myBurstScript').blur(function(){ $(this).css({overflow:'hidden'}); });
     $('input[name=run]').click(function(){
-        var myCanvas = $("#burst").get(0);       
+        var myCanvas = $("#burst").get(0);
         window.Processing.data.kill=myCanvas;
         initPJS();
+        return false;
+    });
+    $('input.runJS').click(function(){
+        var myCanvas = $("#burst").get(0);
+        window.Processing.data.kill=myCanvas;
+        initJS();
         return false;
     });
     $('input[name=info]').click(function(){
