@@ -23,6 +23,7 @@
     <li><a href="#pjspdejs">PJS, PDE & JS</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#featuresdev">Features in Development</a></li>
+    <li><a href="#devtimeline">Development Timeline</a></li>
     <li><a href="#links">Useful Links</a></li>        
   </ol>
   
@@ -51,6 +52,10 @@
   <h4>Usage</h4>
   <ol>
     <li><a href="#ref-commandchaining">Command Chaning</a></li>
+  </ol>
+  <h4>Technical</h4>
+  <ol>
+    <li><a href="#ref-xmlchromesafari">Parsing XML in Chrome &amp; Safari with Javascript</a></li>
   </ol>  
 </div><div class="pageend"></div>    
   
@@ -132,6 +137,12 @@ Burst.play("myTimeline", function(){ alert("finished");} );
 <tr><td class="name">True-type Fonts</td><td>Burst will support true-type font rendering. Strings will be parsed to SVG shapes until such point as TTFs can be supported natively by the Canvas.</td></tr>
 <tr><td class="name">3D Rendering</td><td>Basic 3D may be supported in future versions of Burst. Complexity being added as Browsers begin support OpenGL hardware in actual releases.</td></tr>
 <tr><td class="name">Burst.js IE support</td><td>Maybe one day, who knows?</td></tr>
+</table>
+</div>
+
+<div class="subject">
+<h3><a name="devtimeline">Development Timline</a></h3>
+<table>
 </table>
 </div>
 
@@ -397,6 +408,23 @@ Burst.timeline("party", 0, 25, .5, false)
 <p>For clarrification, the above examples can be written in one string like so:   
 <pre>Burst.timeline("party", 0, 25, .5, false).shape("balloon", "balloon.svg").shape("cake", "cake.svg").track("left").key(1, 50).key(25, 100).shape("balloon").track("top").key(1, 100).key(25, -20);</pre></p>
 </div>
+
+
+<div class="subject">
+<h3><a name="ref-xmlchromesafari">Parsing XML in Chrome/Safari with Javascript</a></h3>
+<p>One interesting thing I noticed when trying to parse SVG documents in Chrome/Safari with Javascript was that the document is returned without the DocType information. For example.... when XMLHttpRequest to load an SVG's XML in FireFox, the following (and correct) is returned...</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;!-- Created with Inkscape (http://www.inkscape.org/) --&gt;
+&lt;svg ...
+</pre>
+<p>But in the evil Safari/Chrome, DocType is not returned...</p>
+<pre>
+&lt;svg ...
+</pre>
+<p>This means that Safari / Chrome's <b>xmlDoc</b> is actually the <b>&lt;svg&gt;</b> tag. And FireFox's xmlDoc is actually the whole XML document. Go Firefox! This was extremely annoying as I spent a lot of time wondering why my .getAttribute("svg")[0] returned nothing in Safari/Chrome. It was returning a NodeList, with no nodes! Fortunately the answer turned out to be very simple. All I needed to do was call <strong>.getAttribute("svg")[0]</strong> in Firefox and just use the <strong>xmlDoc</strong> in Safari / Chrome.</p>
+</div>
+
 
 
 </div><div class="pageend"></div>    
