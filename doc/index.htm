@@ -56,6 +56,7 @@
   <h4>Technical</h4>
   <ol>
     <li><a href="#ref-xmlchromesafari">Parsing XML in Chrome &amp; Safari with Javascript</a></li>
+    <li><a href="#ref-firefoxglobalalpha">Firefox's globalAlpha Bug</a></li>
   </ol>  
 </div><div class="pageend"></div>    
   
@@ -425,6 +426,12 @@ Burst.timeline("party", 0, 25, .5, false)
 <p>This means that Safari / Chrome's <b>xmlDoc</b> is actually the <b>&lt;svg&gt;</b> tag. And FireFox's xmlDoc is actually the whole XML document. Go Firefox! This was extremely annoying as I spent a lot of time wondering why my .getAttribute("svg")[0] returned nothing in Safari/Chrome. It was returning a NodeList, with no nodes! Fortunately the answer turned out to be very simple. All I needed to do was call <strong>.getAttribute("svg")[0]</strong> in Firefox and just use the <strong>xmlDoc</strong> in Safari / Chrome.</p>
 </div>
 
+
+<div class="subject">
+<h3><a name="ref-firefoxglobalalpha">FireFox's Global Alpha Bug</a></h3>
+<p>At the time of writing this <i>(2009 March 11th)</i>, FireFox contains a bug re: the Canvas' globalAlpha method. In FireFox, global alpha gets ignored render correctly for gradients. GlobalAlpha works correctly in Safari, Chrome and Opera. <a href="tests/globalAlphaGradient/globalAlphaGradient.htm">Global Alpha Gradient Testcase</a></p>
+
+</div>
 
 
 </div><div class="pageend"></div>    
