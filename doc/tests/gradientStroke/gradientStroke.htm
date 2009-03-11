@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <title>A canvas stroke testcase</title>
+    <meta name="DC.creator" content="Kamiel Martinet, http://www.martinet.nl/">
+    <meta name="DC.publisher" content="Mozilla Developer Center, http://developer.mozilla.org">
+    <script type="application/x-javascript">
+    function draw() {
+      var ctx = document.getElementById('canvas').getContext('2d');      
+      lingrad = ctx.createLinearGradient(0,0,150,150);
+      lingrad.addColorStop(0,"rgba(255,0,0,255)");
+      lingrad.addColorStop(1,"rgba(0,255,0,255)");
+
+      ctx.strokeStyle = lingrad;
+          
+      ctx.lineWidth = 20;
+      ctx.strokeRect(30,30,90,90);            
+    }
+    </script>
+    <style type="text/css">
+      body { margin: 20px; font-family: arial,verdana,helvetica; background: url(checkback.gif);}
+      h1 { font-size: 140%; font-weight:normal; color: #fff; border-bottom: 1px solid #ccc; }
+      h4 { margin-bottom:0; } 
+      canvas { border: 2px solid #000;}
+      pre { display:block; background: rgb(238,238,238); border: 1px dashed #666; padding: 15px 20px; margin: 0px 0 10px 0;clear:both;}
+      div.rendering { float:left;margin:0 10px 20px 0;}
+    </style>
+  </head>
+  <body onload="draw();">
+    <h1>Canvas <code>strokeStyle</code> with <code>gradient</code> test-case</h1>
+    <div class="rendering"><h4>Current Browser</h4><canvas id="canvas" width="150" height="150"></canvas></div>
+    <div class="rendering"><h4>FireFox 3.0.7</h4><img src="firefox.gif" /></div>
+    <div class="rendering"><h4>Safari 3.2.2</h4><img src="safari.gif" /></div>
+    <div class="rendering"><h4>Chrome 1.0.154.48</h4><img src="chrome.gif" /></div>
+    <div class="rendering"><h4>Opera 9.64</h4><img src="opera.gif" /></div>
+<pre>
+function draw() {
+  var ctx = document.getElementById('canvas').getContext('2d');      
+  lingrad = ctx.createLinearGradient(0,0,150,150);
+  lingrad.addColorStop(0,"rgba(255,0,0,255)");
+  lingrad.addColorStop(1,"rgba(0,255,0,255)");
+
+  ctx.strokeStyle = lingrad;
+    
+  ctx.lineWidth = 20;
+  ctx.strokeRect(30,30,90,90);            
+}
+</pre>
+    
+    
+  </body>
+</html>
