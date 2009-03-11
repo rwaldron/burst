@@ -57,6 +57,7 @@
   <ol>
     <li><a href="#ref-xmlchromesafari">Parsing XML in Chrome &amp; Safari with Javascript</a></li>
     <li><a href="#ref-firefoxglobalalpha">Firefox's globalAlpha Bug</a></li>
+    <li><a href="#ref-safarigradientstroke">Safari's Gradient-Stroke Bug</a></li>        
   </ol>  
 </div><div class="pageend"></div>    
   
@@ -429,8 +430,12 @@ Burst.timeline("party", 0, 25, .5, false)
 
 <div class="subject">
 <h3><a name="ref-firefoxglobalalpha">FireFox's Global Alpha Bug</a></h3>
-<p>At the time of writing this <i>(2009 March 11th)</i>, FireFox contains a bug re: the Canvas' globalAlpha method. In FireFox, global alpha gets ignored render correctly for gradients. GlobalAlpha works correctly in Safari, Chrome and Opera. <a href="tests/globalAlphaGradient/globalAlphaGradient.htm">Global Alpha Gradient Testcase</a></p>
+<p>At the time of writing this <i>(2009 March 11th)</i>, FireFox contains a bug re: the Canvas' globalAlpha method. In FireFox, global alpha gets ignored when rendering gradients. GlobalAlpha works correctly in Safari, Chrome and Opera. <a href="tests/globalAlphaGradient/globalAlphaGradient.htm">( Global Alpha Gradient Testcase )</a> I filed this bug with Mozilla: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=482751">Bug 482751</a>. To which I am told that it is fixed in the latest nightly, which I downloaded and apparently that's not true, at least in the WIN32 version.</p>
+</div>
 
+<div class="subject">
+<h3><a name="ref-safarigradientstroke">Safari's Gradient-Stroke Bug</a></h3>
+<p>Unfortunately Safari seems incapable of applying a gradient to a strokeStyle <i>(2009 March 11th)</i>. FireFox, Chome and Opera can do this just fine. <a href="tests/gradientStroke/gradientStroke.htm">Gradient-Stroke Test Case</a>. Bug filled with Apple Developer Connection (Follow-Up: 69318849).</p>
 </div>
 
 
