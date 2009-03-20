@@ -7,36 +7,71 @@
 <meta name="description" content="Burst Engine Demo">
 <meta name="keywords" content="Burst animation engine JavaScript Canvas">
 <title>Burst Engine</title>    
-<link rel="stylesheet" media="screen" type ="text/css" href="../../doc/css/screen.css" />  
+<link rel="stylesheet" media="screen" type ="text/css" href="../../doc/css/screen.css" />   
+<script type='text/javascript' src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js_'></script>
 <script type="text/javascript" src="burstCurrent.js"></script>
 
 <script type="text/javascript">
-function myBurstScript(Burst){
-
-  Burst.timeline("myTimeline", 1, 100, .1, false)
-      .track("scl")
-        .key(1, .001, "easeOutBounce")
-        .key(100, 1)
-      .track("fill")
-        .key(0,"00ff00ff")
-        .key(100,"ff0000ff")
-      .track("rot")
-        .key(0,0)
-        .key(100,360)
-        
-    .shape("newshape", "../../shapes/svg/newshape.svg", "svg", 10, 10, 1, 0)      
-    .shape("shapeName", "../../shapes/svg/aSpiral.svg", "svg", 10, 10, 1, 0)
-      .track("rot")
-        .key(1, 0)
-        .key(100, 360)
+function myBurstScript(Burst){ 
+  Burst.defaults.ease="easeInOutSine";
+  Burst.timeline("legs",1,200,2,true)
+  .shape("octocat","../../shapes/svg/octocat_test.svg","svg",0,0,1,0)
+    .cut("Head;EarL;Skin;EarR;EyeL;EyeR;MouthNose;WiskersL;WiskersR;")
+    .group("Tenticles")
+      .track("centerX").key(0,330).track("centerY").key(0,240)
+      .track("rot").key(0,-5).key(100,5).key(200,-5)
+      .track("transform").key(0, [1,0,.03,1,0,0]).key(100,[1,0,-.03,1,0,0]).key(200,[1,0,.03,1,0,0])
+      .track("scl").key(0,1.1)
+      .track("top").key(0,-15)
+    .group("Tail")
+      .track("left").key(0,5).key(100,-18).key(200,5)
+      .track("centerX").key(0,330).track("centerY").key(0,240)
+      .track("rot").key(0,-5).key(100,5).key(180,-5)
+      .track("transform").key(0, [1,0,.03,1,0,0]).key(100,[1,0,-.03,1,0,0]).key(200,[1,0,.03,1,0,0])
+      .track("scl").key(0,1.05)
+      .track("top").key(0,-20).key(100,-22).key(200,-20)
+      .track("centerX").key(0,290).track("centerY").key(0,240)
+      .track("rot").key(0,0).key(100,-10).key(180,0)
+    .group("Drop").track("centerX").key(0,190).track("centerY").key(0,280)
+      .track("left").key(105,-15).key(180,6)
+      .track("top").key(0,0).key(100,-15,"easeInQuad").key(190,110)
+      .track("opac").key(0,0).key(105,0).key(110,1).key(180,1).key(200,0)
   ;
-  Burst.timeline("myTimeline").fillHex="ff0000ff";
-  Burst.start("myTimeline");
-      
-      
+  
+  Burst.timeline("head", 1, 100, 2, true)
+  .shape("octocat","../../shapes/svg/octocat_test.svg","svg",0,0,1,0)
+    .cut("Tenticles;Tail;Drop;Pool")
+    .group("Head")
+      .track("transform").key(0,[1,0,0,1,0,0]).key(50,[1,0,0,.95,0,0]).key(100,[1,0,0,1,0,0])
+    .group("EarL").track("centerX").key(0,215).track("centerY").key(0,61)
+      .track("top").key(0,0).key(50,20).key(100,0) 
+      .track("scl").key(0,1).key(50,1.5).key(100,1)
+    .group("EarR").track("centerX").key(0,450).track("centerY").key(0,61)
+      .track("top").key(0,0).key(50,20).key(100,0)
+      .track("scl").key(0,1).key(50,1.5).key(100,1)
+    .group("Skin").track("centerX").key(0,330).track("centerY").key(0,170)
+      .track("top").key(0,0).key(50,-20).key(100,0)
+      .track("scl").key(0,1).key(50,1.02).key(100,1)
+    .group("EyeL").track("centerX").key(0,290).track("centerY").key(0,180)
+      .track("top").key(0,0).key(50,-20).key(100,0)
+      .track("scl").key(0,1).key(50,1.02).key(100,1)
+    .group("EyeR").track("centerX").key(0,390).track("centerY").key(0,180)
+      .track("top").key(0,0).key(50,-20).key(100,0)
+      .track("scl").key(0,1).key(50,1.02).key(100,1)
+    .group("MouthNose").track("centerX").key(0,330).track("centerY").key(0,210)
+      .track("top").key(0,0).key(50,-20).key(100,0)
+      .track("scl").key(0,1).key(50,1.05).key(100,1)
+    .group("WiskersL").track("centerX").key(0,200).track("centerY").key(0,210)
+      .track("scl").key(0,1).key(50,1.1).key(100,1)
+      .track("top").key(0,0).key(50,-10).key(100,0)
+    .group("WiskersR").track("centerX").key(0,450).track("centerY").key(0,210)
+      .track("scl").key(0,1).key(50,1.1).key(100,1)
+      .track("top").key(0,0).key(50,-10).key(100,0)
+  ;
+  
+  Burst.start("head;legs");  
 }
 newBurst('BurstCanvas', myBurstScript);
-
 </script>
 </head>
   <body>

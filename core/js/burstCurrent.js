@@ -1,4 +1,3 @@
-
 /*
     Burst Engine 0.3.30 - http://hyper-metrix.com/#burst        
     Copyright (c) 2009 Alistair MacDonald        
@@ -27,74 +26,52 @@
     OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// (function(){this.burst = function burst() {})(); //make global later
-
-//////// U S E F U L - F U N C T I O N S ///////////////////////////////////////////
-
-function has(needle,hay){
-  if(hay.indexOf(needle,0)>-1){
-    return true;
-  } else {
-    return false;
-  };
-};  
-
-function hexRGBA(hex){  
-  var RGBA = toNumbers(hex);
-  function toNumbers(str){
-    var ret=[];
-    str.replace(/(..)/g,function(str){
-      ret.push(parseInt(str,16));
-    });      
-    return ret;
+var burstDebug=false;
+function debug(){if(burstDebug==true){
+  switch(arguments[0]){
+  case "bounds":
+    var t=arguments[1];
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+      ctx.moveTo(t.centerX-30,t.centerY-30);
+      ctx.lineTo(t.centerX+30,t.centerY+30);
+      ctx.moveTo(t.centerX+30,t.centerY-30);
+      ctx.lineTo(t.centerX-30,t.centerY+30);
+      ctx.strokeStyle="rgba(255,0,255,255)";
+    ctx.closePath();
+    ctx.stroke();
+    ctx.globalCompositeOperation = "source-over";
+    break;
+  default:
+    console.log(arguments);    
   }
-  return RGBA;
-}
-
-
-function toHex(decimal){
-  var hexTable = "0123456789ABCDEF";
-  if(decimal<0){
-    return "00";
-  } else if(decimal>255){
-    return "ff";
-  }
-  var c1=Math.floor(decimal/16);
-  var c2=decimal%16;
-  return hexTable.charAt(c1)+hexTable.charAt(c2);
-}
-
-function radians(aAngle){
-  return (aAngle/180)*Math.PI;
-};
-
-// From http://eJohn.org
-Array.prototype.remove = function(from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
-};
-
-////////////////////////////////////////////////////////////////////////////////
+}}
 
 //////// M A S T E R - C O N T R O L E R ///////////////////////////////////////
-function burst(name,width,height){
+function burst(name,width,height){    
   this.version = "Burst.js.0.3.30"
+  //burstDebug=true;
   this.name=name;
   this.urlIndex=[];
   this.ajaxMem=[];
   this.timelines=[];
   this.buffer=[];
-  this.debug=false;
   this.tl="";
   this.mspf = 20; // 60fps approx.
   this.frame = 0;
   this.width=width;
   this.height=height;
-  this.paused=false;
+  this.paused=false;  
+}
+  
+  burst.prototype.defaults={
+    ease:"easeInOutQuad",
+    debug:true       
   }
   
   burst.prototype.name;
+  burst.prototype.version;
   burst.prototype.urlIndex;
   burst.prototype.ajaxMem;
   burst.prototype.timelines;
@@ -104,16 +81,166 @@ function burst(name,width,height){
   burst.prototype.mspf;
   burst.prototype.frame;
   burst.prototype.width;
-  burst.prototype.height;  
+  burst.prototype.height;    
+ 
+  burst.prototype.has = function(needle,hay){
+    if(hay.indexOf(needle,0)>-1){
+      return true;
+    } else {
+      return false;
+    };
+  };  
   
+  burst.prototype.hexRGBA = function(hex){  
+    var RGBA = toNumbers(hex);
+    function toNumbers(str){
+      var ret=[];
+      str.replace(/(..)/g,function(str){
+        ret.push(parseInt(str,16));
+      });      
+      return ret;
+    }
+    return RGBA;
+  }
     
+  burst.prototype.toHex = function toHex(decimal){
+    var hexTable = "0123456789ABCDEF";
+    if(decimal<0){
+      return "00";
+    } else if(decimal>255){
+      return "ff";
+    }
+    var c1=Math.floor(decimal/16);
+    var c2=decimal%16;
+    return hexTable.charAt(c1)+hexTable.charAt(c2);
+  }
+    
+  burst.prototype.radians = function(aAngle){
+    return (aAngle/180)*Math.PI;
+  };
+  
+  burst.prototype.debug = function(what){
+    //console.log( typeof what );    
+  }  
+    
+  burst.prototype.ease = function(e,x,t,b,c,d){
+    switch(e){
+      case "linear": return c*t/d + b; break;
+      case "easeInQuad": return c*(t/=d)*t + b; break;
+      case "easeOutQuad": return -c *(t/=d)*(t-2) + b; break;
+      case "easeInOutQuad": if ((t/=d/2) < 1) return c/2*t*t + b; return -c/2 * ((--t)*(t-2) - 1) + b; break;
+      case "easeInCubic": return c*(t/=d)*t*t + b; break;
+      case "easeOutCubic": return c*((t=t/d-1)*t*t + 1) + b; break;
+      case "easeInOutCubic": if ((t/=d/2) < 1) return c/2*t*t*t + b; return c/2*((t-=2)*t*t + 2) + b; break;
+      case "easeInQuart": return c*(t/=d)*t*t*t + b; break;
+      case "easeOutQuart": return -c * ((t=t/d-1)*t*t*t - 1) + b; break;
+      case "easeInOutQuart": if ((t/=d/2) < 1) return c/2*t*t*t*t + b; return -c/2 * ((t-=2)*t*t*t - 2) + b; break;
+      case "easeInQuint": return c*(t/=d)*t*t*t*t + b; break;
+      case "easeOutQuint": return c*((t=t/d-1)*t*t*t*t + 1) + b; break;
+      case "easeInOutQuint": if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b; return c/2*((t-=2)*t*t*t*t + 2) + b; break;
+      case "easeInSine": return -c * Math.cos(t/d * (Math.PI/2)) + c + b; break;
+      case "easeOutSine": return c * Math.sin(t/d * (Math.PI/2)) + b; break;
+      case "easeInOutSine":  return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b; break;
+      case "easeInExpo": return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b; break;
+      case "easeOutExpo": return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b; break;
+      case "easeInOutExpo": if (t==0) return b; if (t==d) return b+c; if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b; return c/2 * (-Math.pow(2, -10 * --t) + 2) + b; break;
+      case "easeInCirc": return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b; break;
+      case "easeOutCirc": return c * Math.sqrt(1 - (t=t/d-1)*t) + b; break;
+      case "easeInOutCirc": if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b; return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b; break;
+      case "easeInElastic": var s=1.70158;var p=0;var a=c; if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3; if (a < Math.abs(c)) { a=c; var s=p/4; } else var s = p/(2*Math.PI) * Math.asin (c/a); return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b; break;
+      case "easeOutElastic": var s=1.70158;var p=0;var a=c; if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3; if (a < Math.abs(c)) { a=c; var s=p/4; } else var s = p/(2*Math.PI) * Math.asin (c/a); return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b; break;
+      case "easeInOutElastic": var s=1.70158;var p=0;var a=c; if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5); if (a < Math.abs(c)) { a=c; var s=p/4; } else var s = p/(2*Math.PI) * Math.asin (c/a); if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b; return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b; break;
+      case "easeInBack": if (s == undefined) s = 1.70158; return c*(t/=d)*t*((s+1)*t - s) + b; break;
+      case "easeOutBack": if (s == undefined) s = 1.70158; return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b; break;
+      case "easeInOutBack": if (s == undefined) s = 1.70158;  if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b; return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b; break;
+      case "easeInBounce": return c - ease("easeOutBounce", x, d-t, 0, c, d) + b; break;
+      case "easeOutBounce": if ((t/=d) < (1/2.75)) { return c*(7.5625*t*t) + b; } else if (t < (2/2.75)) { return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b; } else if (t < (2.5/2.75)) { return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b; } else { return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b; } break;
+      case "easeInOutBounce": if (t < d/2) return ease("easeInBounce",x, t*2, 0, c, d) * .5 + b; return ease("easeOutBounce",x, t*2-d, 0, c, d) * .5 + c*.5 + b; break;
+    }
+  }
+  
+  burst.prototype.engine = function(object,frame,curProp,curKey,nextKey){      
+      var ease=this.ease;
+      if(frame>=curKey.frame&&frame<nextKey.frame){
+        var e=curKey.easing;
+        var x=0;
+        var t=frame-curKey.frame;
+        var b=curKey.value;        
+        var c=nextKey.value-curKey.value;
+        var d=nextKey.frame-curKey.frame;
+        switch(curProp){
+          case "left":object.left=ease(e,x,t,b,c,d);break;
+          case "top":object.top=ease(e,x,t,b,c,d);break;
+          case "centerX":object.centerX=ease(e,x,t,b,c,d);break;
+          case "centerY":object.centerY=ease(e,x,t,b,c,d);break;
+          case "scl":object.scl=ease(e,x,t,b,c,d);break;
+          case "rot":object.rot=ease(e,x,t,b,c,d);break;
+          case "transform":
+            var c=[];for(var i=0;i< b.length;i++){c[i]=nextKey.value[i]-curKey.value[i];}
+            object.transform=[
+              ease(e,x,t,b[0],c[0],d),
+              ease(e,x,t,b[1],c[1],d),
+              ease(e,x,t,b[2],c[2],d),
+              ease(e,x,t,b[3],c[3],d),
+              ease(e,x,t,b[4],c[4],d),
+              ease(e,x,t,b[5],c[5],d)];
+            break;
+          case "strokeWeight":object.strokeW=ease(e,x,t,b,c,d);break;
+          case "stroke":
+            var c1=hexRGBA(curKey.value);
+            var c2=hexRGBA(nextKey.value);
+            object.strokeR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
+            object.strokeG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
+            object.strokeB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
+            object.strokeA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);
+            break;
+          case "fill":
+            var c1=hexRGBA(curKey.value);
+            var c2=hexRGBA(nextKey.value);
+            object.fillR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
+            object.fillG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
+            object.fillB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
+            object.fillA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);                
+            break;
+          case "opac":object.opac=ease(e,x,t,b,c,d);break;
+        }
+    }else if(frame>=nextKey.frame||frame==0){
+      var b=curKey.value;
+      switch(curProp){
+      case "left":object.left=b;break;
+      case "top":object.top=b;break;
+      case "centerX":object.centerX=b;break;
+      case "centerY":object.centerY=b;break;
+      case "scl":object.scl=b;break;
+      case "rot":object.rot=b;break;
+      case "transform":object.transform=[b[0],b[1],b[2],b[3],b[4],b[5]];
+      case "strokeWeight":object.strokeW=b;break;
+      case "stroke":
+        var c=hexRGBA(b);            
+        object.strokeR=c[0];
+        object.strokeG=c[1];
+        object.strokeB=c[2];
+        object.strokeA=1/255*c[3]            
+        break;
+      case "fill":
+        var c=hexRGBA(b);
+        object.fillR=c[0];
+        object.fillG=c[1];
+        object.fillB=c[2];
+        object.fillA=1/255*c[3];
+        break;
+      case "opac":object.opac=b;break;
+      }
+    }        
+  
+  } // engine end
+      
   burst.prototype.is=function(){
-    return "YES!";
+    return this.version;
   }
   
   burst.prototype.start=function(tls,cb){
-    var thisBurstInstance=this;
-    buffer=[];
+    this.buffer=[];
     var tl=tls.split(";");
     for(var j=0;j<this.timelines.length;j++){
       for(var i=0;i<tl.length;i++){
@@ -167,12 +294,22 @@ function burst(name,width,height){
       }
     }
   }
+
+  burst.prototype.timeline=function(name,frameOffset,lastFrame,playSpeed,loop){        
+    for(var i=0; i<this.timelines.length; i++){
+      if(this.timelines[i].name==name){
+        return this.timelines[i];
+      }
+    }
+    this.timelines[this.timelines.length] = new burst.prototype.timelineobject(name, frameOffset, lastFrame, playSpeed, loop, this);
+    return this.timelines[this.timelines.length-1];
+  }
     
   burst.prototype.load=function(tl,cb){
     tl.playSpeed>=0?tl.frame=0:tl.frame=tl.lastFrame;
     tl.callbackfired=false;              
     this.buffer[this.buffer.length]=[tl,cb];                              
-  }      
+  }
 
   // AJAX function based on http://www.hunlock.com/blogs/Snippets:_Synchronous_AJAX
   burst.prototype.get=function(url){
@@ -233,31 +370,59 @@ function burst(name,width,height){
   
   
   // Load SVG file...
-  burst.prototype.loadSVG=function(url){
+  burst.prototype.loadSVG=function(url,mode){
+    var nodeIndex=0;
+    var has = burst.prototype.has;
+    var hexRGBA = burst.prototype.hexRGBA; 
+    var curNode;
     var xmlDoc; 
     var gradients=[];
-    var O = new SVG("url"); // The new SVG object to be returned
+    var svg = [];
+    //use this.O to make clones rather than simgular links?
+    var O = new burst.prototype.SVG("url"); // The new SVG object to be returned
+    var g;
     
     // Load XML doc AJAX
     function loadXML(){
       try{xmlDoc=new ActiveXObject("Microsoft.XMLDOM");}
       catch(e){try{xmlDoc=document.implementation.createDocument("","",null);}
-      catch(e){alert(e.message);return;}}
-      xmlDoc.async=false;      
-      xmlDoc.load(url);
-      svg=xmlDoc.getElementsByTagName("svg")[0];
-      O.width=parseFloat(svg.getAttribute("width"));
-      O.height=parseFloat(svg.getAttribute("height"));
-      parseSVG(svg);
+      catch(e){alert(e.message);return;}}      
+       try // Good browsers: Firefox, Mozilla, Opera, etc.
+          {
+          xmlDoc.async=false;
+          xmlDoc.load(url);
+          svg = xmlDoc.getElementsByTagName("svg")[0];
+          O.width=parseFloat(svg.getAttribute("width"));
+          O.height=parseFloat(svg.getAttribute("height"));
+          parseSVG(svg,"svg");
+          }
+        catch(e)
+           {
+        try // Naughty browsers: Google Chrome, Safari etc.
+          {
+           var xmlhttp = new window.XMLHttpRequest();
+           xmlhttp.open("GET",url,false);
+           xmlhttp.send(null);
+           svg = xmlhttp.responseXML.documentElement;
+           O.width=parseFloat(svg.getAttribute("width"));
+           O.height=parseFloat(svg.getAttribute("height"));
+           parseSVG(svg,"svg");
+          }
+        catch(e)
+          {
+            error=e.message;            
+          }
+        }
     }
     
-    function parseSVG(node){      
+    function parseSVG(node,parentTag){
       var doFill=false;
       var doStroke=false;
       var doState=false;  
+      var setGlobalAlpha = true;
       var sc=[]; // stroke color
       var fc=[]; // fill color
-      var o=1.0; // opacity      
+      var o=1.0; // opacity
       
       // Regular expressions for SVG
       var findURLGradient = "(url[(]#)(.[^)]+)";
@@ -278,29 +443,33 @@ function burst(name,width,height){
   
       // :: Transform & Matrix :::::::::::::::::::::::::::::::::::::::::::::::::::
       transform=function(node){
-        //O.add([],function(){ctx.save();});
-        //doState=true;
         var p = curNode.getAttribute("transform");
-        if(v=regex(findTranslate,p)[0]){O.add([v[2],v[4]],function(a){ctx.translate(a[0],a[1]);});}
-        if(v=regex(findMatrix,p)[0]){O.add([v[2],v[4],v[6],v[8],v[10],v[12]],function(a){ctx.transform(a[0],a[1],a[2],a[3],a[4],a[5]);});}
+        if(v=regex(findTranslate,p)[0]){O.add([v[2],v[4]],function(a){ctx.translate(a[0],a[1]);},g);}
+        if(v=regex(findMatrix,p)[0]){O.add([v[2],v[4],v[6],v[8],v[10],v[12]],function(a){ctx.transform(a[0],a[1],a[2],a[3],a[4],a[5]);},g);}
       }
       // :: Path :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       path=function(node){
-        O.add(0,function(){ctx.beginPath();});
+        O.add(0,function(){ctx.beginPath();},g);
         transform(curNode);
-        command=regex(findPathCommands,curNode.getAttribute("d"));
+        var command=regex(findPathCommands,curNode.getAttribute("d"));
         for(var i=0;i<command.length-1;i++){
+          var c=0;
           switch(command[i][0][0]){
-          case "M":c=regex(findXYx2,command[i][0]);O.add([c[0][0],c[1][0]],function(a){ctx.moveTo(a[0],a[1])});break;
-          case "C":c=regex(findXYx6,command[i][0]);O.add([c[0][0],c[1][0],c[2][0],c[3][0],c[4][0],c[5][0]],function(a){ctx.bezierCurveTo(a[0],a[1],a[2],a[3],a[4],a[5]);});break; 
-          case "L":c=regex(findXYx2,command[i][0]);O.add([c[0][0],c[1][0]],function(a){ctx.lineTo(a[0],a[1])});break;            
-          case "Z":O.add(0,function(){ctx.closePath()});break;
-          case "z":O.add(0,function(){ctx.closePath()});break;          
+          case "M":c=regex(findXYx2,command[i][0]);O.add([c[0][0],c[1][0]],function(a){ctx.moveTo(a[0],a[1])},g);break;
+          case "C":c=regex(findXYx6,command[i][0]);O.add([c[0][0],c[1][0],c[2][0],c[3][0],c[4][0],c[5][0]],function(a){ctx.bezierCurveTo(a[0],a[1],a[2],a[3],a[4],a[5]);},g);break;
+          case "Q":c=regex(findXYx6,command[i][0]);O.add([c[0][0],c[1][0],c[2][0],c[3][0],c[4][0],c[5][0]],function(a){ctx.bezierCurveTo(a[0],a[1],a[2],a[3],a[4],a[5]);},g);break; 
+          case "A":
+              c=regex(findXYx6,command[i][0]);
+              O.add([c[0][0],c[1][0],c[2][0],c[3][0],c[4][0],c[5][0]],function(a){ctx.arcTo(a[0],a[1],a[2],a[3],a[4],a[5]);},g);
+              break;
+          case "L":c=regex(findXYx2,command[i][0]);O.add([c[0][0],c[1][0]],function(a){ctx.lineTo(a[0],a[1])},g);break;       
+          case "Z":O.add(0,function(){ctx.closePath()},g);break;
+          case "z":O.add(0,function(){ctx.closePath()},g);break;
           }
         }
         style(curNode);
-        doFill?O.add(0,function(){ctx.fill()}):0;
-        doStroke?O.add(0,function(){ctx.stroke()}):0;
+        doFill?O.add(0,function(){ctx.fill()},g):0;
+        doStroke?O.add(0,function(){ctx.stroke()},g):0;
       }
       // :: Rect :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       rect=function(node){
@@ -309,81 +478,82 @@ function burst(name,width,height){
         var height = curNode.getAttribute("height");
         var x = curNode.getAttribute("x");
         var y = curNode.getAttribute("y");
-        style(curNode);
-        doFill?O.add([x,y,width,height],function(a){ctx.fillRect(a[0],a[1],a[2],a[3])}):0;        
-        doStroke?O.add([x,y,width,height],function(a){ctx.strokeRect(a[0],a[1],a[2],a[3])}):0;
+        style(curNode);         
+        doFill?O.add([x,y,width,height],function(a){ctx.fillRect(a[0],a[1],a[2],a[3])},g):0;        
+        doStroke?O.add([x,y,width,height],function(a){ctx.strokeRect(a[0],a[1],a[2],a[3])},g):0;                        
       }
       // :: Style ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       style=function(curNode){
         doFill=false;
         doStroke=false;
-        o=1;
+        var fillGrad = false;
+        var strokeGrad = false;
+        if(setGlobalAlpha==true){O.add('',function(){ctx.globalAlpha=1;},g);setGlobalAlpha=false;}
+        var so=1, fo=1, o=1; // stroke-opacity, fill-opacity, global-alpha/opacity
         var styles = curNode.getAttribute("style").split(";");        
         for(var i=0;i<styles.length;i++){
-          var propval = styles[i].split(":");
-          //console.log(propval); 
+          var propval = styles[i].split(":"); //console.log(propval); 
           switch(propval[0]){
-          case "stroke-width": var linewidth = parseFloat(propval[1]); O.add(linewidth,function(a){ctx.lineWidth=a;}); break;
-          case "stroke-linecap": var linecap = propval[1]; O.add(linecap,function(a){ctx.lineCap=a;}); break;
-          case "stroke-linejoin": var linejoin = propval[1]; O.add(linejoin,function(a){ctx.lineJoin=a;}); break;
-          case "stroke-miterlimit": var miterlimit = parseFloat(propval[1]);O.add(miterlimit,function(a){ctx.miterLimit=a;}); break;
+          case "opacity": o=propval[1]; setGlobalAlpha=true;O.add(o,function(a){ctx.globalAlpha=a;},g);break;
+          case "stroke-width": var linewidth = parseFloat(propval[1]); O.add(linewidth,function(a){ctx.lineWidth=a;},g); break;
+          case "stroke-linecap": var linecap = propval[1]; O.add(linecap,function(a){ctx.lineCap=a;},g); break;
+          case "stroke-linejoin": var linejoin = propval[1]; O.add(linejoin,function(a){ctx.lineJoin=a;},g); break;
+          case "stroke-miterlimit": var miterlimit = parseFloat(propval[1]);O.add(miterlimit,function(a){ctx.miterLimit=a;},g); break;
+          case "fill-opacity":fo=propval[1];break;
+          case "fill":
+            if(propval[1]!="none"){
+              doFill=true;
+              if(has("url(#",propval[1])){
+                fillGrad = true;
+                var gradientURL=regex(findURLGradient,propval[1])[0][2];
+                //console.log(gradientURL)
+                for(var u=0;u<gradients.length;u++){                  
+                  if(gradients[u][0]==gradientURL){                      
+                      O.add(gradients[u][1],function(a){ctx.fillStyle=a;},g);
+                      break;
+                  }
+                }
+              }else if(burst.prototype.has("#",propval[1])){
+                fc=hexRGBA(propval[1].substr(1,6));
+                fillGrad = false;
+              }
+            }
+            break;
+          case "stroke-opacity":so=propval[1]; break;                 
           case "stroke":
               if(propval[1]!="none"){
                 doStroke=true;
                 if(has("url(#",propval[1])){
-                  var gradientURL=regex(findURLGradient,propval[1])[0][2];
+                  strokeGrad = true;
+                  var gradientURL=regex(findURLGradient,propval[1])[0][2];                  
                   for(var u=0;u<gradients.length;u++){
-                    if(gradients[u][0]==gradientURL){                    
-                        O.add(gradients[u][1],function(a){ctx.strokeStyle=a;});
+                    if(gradients[u][0]==gradientURL){
+                        O.add(gradients[u][1],function(a){ctx.strokeStyle=a;},g);                        
                         break;
                     }
                   }
                 }else if(has("#",propval[1])){
                   sc=hexRGBA(propval[1].substr(1,6));
-                  O.add(propval[1],function(a){ctx.strokeStyle=a;});
+                  strokeGrad = false;
                 }
               }
-              /*if(propval[1]=="none"){
-                doStroke=false;
-              }else{
-                doStroke=true;sc=hexRGBA(propval[1].substr(1,6));
-                O.add(propval[1],function(a){ctx.strokeStyle=a;})
-              };*/              
               break;
-          case "stroke-opacity":
-            if(doStroke){
-              o=propval[1]; // opacity (not same as SVGobject 'O')
-              O.add('rgba('+sc[0]+','+sc[1]+','+sc[2]+','+propval[1]+')',function(a){ctx.strokeStyle=a;});
-            }
-            break;                        
-          case "fill":
-            if(propval[1]!="none"){
-              doFill=true;
-              if(has("url(#",propval[1])){
-                var gradientURL=regex(findURLGradient,propval[1])[0][2];
-                for(var u=0;u<gradients.length;u++){
-                  if(gradients[u][0]==gradientURL){                    
-                      O.add(gradients[u][1],function(a){ctx.fillStyle=a;});
-                      break;
-                  }
-                }
-              }else if(has("#",propval[1])){
-                fc=hexRGBA(propval[1].substr(1,6));
-                O.add(propval[1],function(a){ctx.fillStyle=a;});
-              }
-            }
-            break;
-          case "fill-opacity":
-            if(doFill){
-              O.add('rgba('+fc[0]+','+fc[1]+','+fc[2]+','+propval[1]+')',function(a){ctx.fillStyle=a;});
-            }
-            break;    
           }
         }
-        return; 
+        
+        // Build fill/stroke grads/opacs etc
+        if (fillGrad==false && doFill==true){
+          var aCol='rgba('+fc[0]+','+fc[1]+','+fc[2]+','+fo+')';                
+          O.add(aCol,function(a){ctx.fillStyle=a;},g);
+        }
+        if (strokeGrad==false && doStroke==true){
+          var aCol='rgba('+sc[0]+','+sc[1]+','+sc[2]+','+so+')';
+          O.add(aCol,function(a){ctx.strokeStyle=a;},g);
+        }
       }
+      
       // :: Gradients ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      gradient=function(node,type){
+      gradient=function(node,type){                              
         switch(type){
         case "linear":
           var xlink="";
@@ -392,12 +562,17 @@ function burst(name,width,height){
             var y1=node.getAttribute("y1");
             var x2=node.getAttribute("x2");
             var y2=node.getAttribute("y2");
-            gradients[gradients.length]=[node.getAttribute("id"),ctx.createLinearGradient(x1,y1,x2,y2)];
-            //O.add(function(){lingrad = ctx.createLinearGradient(x1,y1,x2,y2)});
+            gradients[gradients.length]=[node.getAttribute("id"),ctx.createLinearGradient(x1,y1,x2,y2)];            
             xlink=xlink.split("#")[1];
+            var en = svg.getElementsByTagName("linearGradient"); // radials link to linears            
+            for(var e=0;e<en.length;e++){
+              if(en[e].getAttribute("id")==xlink){
+                break;
+              }
+            }
             var i=0;
             var colorStop;
-            while(colorStop=xmlDoc.getElementById(xlink).getElementsByTagName("stop")[i]){i++;
+            while(colorStop=en[e].getElementsByTagName("stop")[i]){i++;
               var stopStyle;
               var j=0;
               while(stopStyle=colorStop.getAttribute("style").split(";")[j]){j++;
@@ -405,16 +580,17 @@ function burst(name,width,height){
                 var stopProp=stopStyle.split(":");
                 switch(stopProp[0]){
                   case "stop-color":var gc=hexRGBA(stopProp[1].substr(1,6));break;
-                  case "stop-opacity":var go=stopProp[1];break;
+                  case "stop-opacity":var gop=stopProp[1];break;
                 }
               }
-              gradients[gradients.length-1][1].addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+go+')');
-              //O.add(function(){lingrad.addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+go+')')});
-            }
+              //console.log( stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+gop+')' );
+              gradients[gradients.length-1][1].addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+gop+')');
+            }            
+          } else { //console.log("no xlink for: "+node.getAttribute("id")); 
           }
           break;
         case "radial":
-          var xlink="";          
+          var xlink;          
           if(xlink=node.getAttribute("xlink:href")){
             var cx=node.getAttribute("cx");
             var cy=node.getAttribute("cy");
@@ -423,21 +599,27 @@ function burst(name,width,height){
             var fy=node.getAttribute("fy");
             //c=regex(findXYx6,node.getAttribute("gradientTransform"));            
             gradients[gradients.length]=[node.getAttribute("id"),ctx.createRadialGradient(cx,cy,0,fx,fy,r)];
-            xlink=xlink.split("#")[1];
+            xlink=xlink.split("#")[1];                                                            
+            var en = svg.getElementsByTagName("linearGradient"); // radials link to linears
+            for(var e=0;e<en.length;e++){
+              if(en[e].getAttribute("id")==xlink){
+                break;
+              }              
+            }            
             var i=0;
             var colorStop;
-            while(colorStop=xmlDoc.getElementById(xlink).getElementsByTagName("stop")[i]){i++;
+            while(colorStop=en[e].getElementsByTagName("stop")[i]){i++;
               var stopStyle;
               var j=0;
-              while(stopStyle=colorStop.getAttribute("style").split(";")[j]){j++;
+              while(stopStyle=colorStop.getAttribute("style").split(";")[j]){j++;                
                 var stopOffset = colorStop.getAttribute("offset");
                 var stopProp = stopStyle.split(":");
                 switch(stopProp[0]){
                   case "stop-color":var gc=hexRGBA(stopProp[1].substr(1,6));break;
-                  case "stop-opacity":var go=stopProp[1];break;
+                  case "stop-opacity":var gop=stopProp[1];break;
                 }
               }
-              gradients[gradients.length-1][1].addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+go+')');
+              gradients[gradients.length-1][1].addColorStop(stopOffset,'rgba('+gc[0]+','+gc[1]+','+gc[2]+','+gop+')');
             }
           }
           break;
@@ -447,34 +629,36 @@ function burst(name,width,height){
       // Parse Tags by Name
       for(var i=0;i<node.childNodes.length;i++){
         curNode = node.childNodes[i];
-        curTagName = node.childNodes[i].tagName;        
+        curTagName = node.childNodes[i].tagName;
+        //debug(node.tagName);                
+        if(node.tagName=="svg"){g=curNode.id;}
         switch(curTagName){
           case "defs"          :parseSVG(curNode);break;
           case "linearGradient":gradient(curNode,"linear");break;
           case "radialGradient":gradient(curNode,"radial");break;
           case "g"             :
-              O.add([],function(){ctx.save();});
-              transform(curNode);parseSVG(curNode);
-              O.add([],function(){ctx.restore();});
+              O.add([],function(){ctx.save();},g);           
+              transform(curNode);parseSVG(curNode);              
+              O.add([],function(){ctx.restore();},g);
               break;
           case "path"          :
-              O.add([],function(){ctx.save();});
+              O.add([],function(){ctx.save();},g);
               path(curNode);
-              O.add([],function(){ctx.restore();});
+              O.add([],function(){ctx.restore();},g);
               break;
           case "rect"          :
-              O.add([],function(){ctx.save();});
+              O.add([],function(){ctx.save();},g);
               rect(curNode);
-              O.add([],function(){ctx.restore();});
+              //O.add([],function(){debug("bounds")},g);
+              O.add([],function(){ctx.restore();},g);
               break;
         }
-        //doState?O.add(0,function(){ctx.restore();}):0;
-        
       }
     }
           
     loadXML();
-    //console.log("svg loaded");
+    //O.render();
+    //O.breakflow();
     return O;
   }
   
@@ -486,58 +670,139 @@ function burst(name,width,height){
         this.buffer[i][0].play(this.buffer[i][1]);
       }
     }
-  }    
+  }
   
   burst.prototype.play=function(){
-    var thisBurstInstance=this;
-    window.setInterval(function(){thisBurstInstance.drawNextFrame();},this.mspf);
+    var instance=this;
+    window.setInterval(function(){instance.drawNextFrame();},this.mspf);
   }
   
-  burst.prototype.timeline=function(name,frameOffset,lastFrame,playSpeed,loop){        
-    for(var i=0; i<this.timelines.length; i++){
-      if(this.timelines[i].name==name){
-        return this.timelines[i];
-      }
-    }
-    this.timelines[this.timelines.length] = new timelineobject(name, frameOffset, lastFrame, playSpeed, loop, this);
-    return this.timelines[this.timelines.length-1]; 
-  }
-////////////////////////////////////////////////////////////////////////////////
-
-//////// S V G /////////////////////////////////////////////////////////////////
-function SVG(url, width, height){
+  
+  //////// S V G - O B J E C T /////////////////////////////////////////////////
+  burst.prototype.SVG=function(url,width,height){
   this.url=url;
-  this.f=[]; // functions
-  this.a=[]; // arguments
-  this.c=0; // func/args count
+  this.groups=[];
   this.width=width;
   this.height=height;
+  this.type="SVGobject";
   }
-  SVG.prototype.url;
-  SVG.prototype.data;
+  burst.prototype.SVG.prototype.groups;
   
-  SVG.prototype.add=function(newArgs,newFunc){    
-    //console.log(newArgs, newFunc);
+  burst.prototype.SVG.prototype.groupobject=function(groupID,isParent){
+  this.tracks=[];
+  this.id=groupID;
+  this.left=0;
+  this.top=0;
+  this.scl=1;
+  this.rot=0;  
+  this.opac=1;
+  this.transform=[1,0,0,1,0,0];
+  this.centerX=0;
+  this.centerY=0;
+  this.f=[]; // functions
+  this.a=[]; // arguments
+  this.c=0;  // func/args count
+  this.isParent=isParent;
+  this.cut=false;
+  return this;
+  }
+  burst.prototype.SVG.prototype.groupobject.prototype.id;
+  burst.prototype.SVG.prototype.groupobject.prototype.left;
+  burst.prototype.SVG.prototype.groupobject.prototype.top;
+  burst.prototype.SVG.prototype.groupobject.prototype.scl;
+  burst.prototype.SVG.prototype.groupobject.prototype.rot;
+  burst.prototype.SVG.prototype.groupobject.prototype.opac;
+  burst.prototype.SVG.prototype.groupobject.prototype.transform;
+  burst.prototype.SVG.prototype.groupobject.prototype.centerX;
+  burst.prototype.SVG.prototype.groupobject.prototype.centerY;
+  
+  //Return Group (SVG groups)
+  burst.prototype.SVG.prototype.groupobject.prototype.group=function(groupID){
+    for(var i=0;i< this.isParent.groups.length; i++){
+      if(this.isParent.groups[i].id==groupID){return this.isParent.groups[i];}
+    }
+  }
+  
+  //burst.prototype.SVG.prototype.groupobject.prototype.group.prototype.  
+  //this.obj.cut(groupIDs);
+    //return this;
+  
+  
+  burst.prototype.SVG.prototype.groupobject.prototype.add=function(newArgs,newFunc){  
     this.a[this.c]=newArgs;
     this.f[this.c]=newFunc;
-    //console.log(this.f[this.c], this.a[this.c]);
     this.c++;
+    //debug(newArgs, newFunc);
+    //debug(this.f[this.c], this.a[this.c],this.id);    
   }
   
-  SVG.prototype.render=function(){
-    //console.log(this.a[0],this.f[0]);
+  burst.prototype.SVG.prototype.groupobject.prototype.render=function(){    
+    ctx.save();
+    ctx.translate(this.left+this.centerX,this.top+this.centerY);
+    ctx.scale(this.scl,this.scl);
+    ctx.rotate(burst.prototype.radians(this.rot));
+    ctx.translate(-this.centerX,-this.centerY);     
+    ctx.globalAlpha=this.opac;
+    t=this.transform;ctx.transform(t[0],t[1],t[2],t[3],t[4],t[5]);    
     for(var i=0;i<this.f.length;i++){
       this.f[i](this.a[i]);
     }
+    ctx.globalAlpha=1;
+    ctx.restore();
+  }    
+  
+  burst.prototype.SVG.prototype.groupobject.prototype.track=function(property){
+    for(var i=0;i<this.tracks.length;i++){
+      if(this.tracks[i].property==property){
+        return this.tracks[i];
+      }
+    }
+    this.tracks[this.tracks.length]=new burst.prototype.trackprop(property,this);
+    return this.tracks[this.tracks.length-1];
   }
-       
+  
+  burst.prototype.SVG.prototype.add=function(newArgs,newFunc,groupID){            
+    var gotMatch=false;
+    for(var i=0;i< this.groups.length;i++){
+      if(this.groups[i].id==groupID){
+         this.groups[i].add(newArgs,newFunc);
+         gotMatch=true;
+         break;
+      }
+    }
+    if(gotMatch==false){
+      this.groups[this.groups.length]=new burst.prototype.SVG.prototype.groupobject(groupID,this);
+      this.groups[this.groups.length-1].add(newArgs,newFunc);
+    }
+  }
+      
+  burst.prototype.SVG.prototype.render=function(){
+    for(var i=0;i<this.groups.length;i++){      
+      if(this.groups[i].cut==false){
+        this.groups[i].render();
+      }
+    }
+  }  
+  
+  burst.prototype.SVG.prototype.cut=function(groupIDs){    
+    var groupIDs=groupIDs.split(";");
+    for(var j=0;j< groupIDs.length;j++){
+      for(var i=0;i< this.groups.length;i++){        
+        if(groupIDs[j]==this.groups[i].id){
+          this.groups[i].cut=true;
+        }
+      }
+    }
+  }
+  
 ////////////////////////////////////////////////////////////////////////////////
 
-//////// T I M E L I N E ///////////////////////////////////////////////////////                                                            
-function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
+
+//////// T I M E L I N E ///////////////////////////////////////////////////////
+burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loop,isParent){  
   this.name=name;
-  this.width=0;
-  this.height=0;
+  this.width=isParent.width;
+  this.height=isParent.height;
   this.type="timeline";
   this.frameOffset=frameOffset;
   this.lastFrame=lastFrame;
@@ -545,7 +810,6 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
   this.loop=loop
   this.paused=false;
   this.shapes=[];
-  this.svgs=[];
   this.timelines=[];
   this.frame=0;
   this.callbackfired=false;    
@@ -561,63 +825,64 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
   this.rot=0.0;
   this.strokeW=0;
   this.strokeHex="00000000";
-  this.strokeRGBA=hexRGBA(this.strokeHex);
+  this.strokeRGBA=burst.prototype.hexRGBA(this.strokeHex);
   this.strokeR=this.strokeRGBA[0];
   this.strokeG=this.strokeRGBA[1];
   this.strokeB=this.strokeRGBA[2];
   this.strokeA=this.strokeRGBA[3];
-  this.fillHex="aaaaaaff";
-  this.fillRGBA=hexRGBA(this.fillHex);
+  this.fillHex="00000000";
+  this.fillRGBA=burst.prototype.hexRGBA(this.fillHex);
   this.fillR=this.fillRGBA[0];
   this.fillG=this.fillRGBA[1];
   this.fillB=this.fillRGBA[2];
   this.fillA=this.fillRGBA[3];        
   this.opac=1.0;
-  this.centerX=width/2;
-  this.centerY=height/2;
-  this.isParent=isParent;
+  this.centerX=this.width/2;
+  this.centerY=this.height/2;
+  this.isParent = isParent;
+  this.cuts=[];
   }
-  
-  timelineobject.prototype.name;
-  timelineobject.prototype.type;
-  timelineobject.prototype.frameOffset;
-  timelineobject.prototype.lastFrame;
-  timelineobject.prototype.playSpeed;
-  timelineobject.prototype.paused;
-  timelineobject.prototype.loop;
-  timelineobject.prototype.shapes;
-  timelineobject.prototype.timelines;
-  timelineobject.prototype.frame;
-  timelineobject.prototype.callbackfired;    
-  timelineobject.prototype.randomCount;
-  timelineobject.prototype.playMode;
-  timelineobject.prototype.tracks;
-  timelineobject.prototype.effects;    
-  timelineobject.prototype.scl; 
-  timelineobject.prototype.left;
-  timelineobject.prototype.top;
-  timelineobject.prototype.rot;
-  timelineobject.prototype.width;
-  timelineobject.prototype.height;
-  timelineobject.prototype.strokeW;
-  timelineobject.prototype.strokeHex;
-  timelineobject.prototype.strokeRGBA;
-  timelineobject.prototype.strokeR;
-  timelineobject.prototype.strokeG;
-  timelineobject.prototype.strokeB;
-  timelineobject.prototype.strokeA;        
-  timelineobject.prototype.fillHex;            
-  timelineobject.prototype.fillRGBA;
-  timelineobject.prototype.fillR;
-  timelineobject.prototype.fillG;
-  timelineobject.prototype.fillB;
-  timelineobject.prototype.fillA;        
-  timelineobject.prototype.opac;
-  timelineobject.prototype.centerX;
-  timelineobject.prototype.centerY;
-  timelineobject.prototype.isParent;
     
-  timelineobject.prototype.inherit=function(tl){
+  burst.prototype.timelineobject.prototype.name;  
+  burst.prototype.timelineobject.prototype.type;
+  burst.prototype.timelineobject.prototype.frameOffset;
+  burst.prototype.timelineobject.prototype.lastFrame;
+  burst.prototype.timelineobject.prototype.playSpeed;
+  burst.prototype.timelineobject.prototype.paused;
+  burst.prototype.timelineobject.prototype.loop;
+  burst.prototype.timelineobject.prototype.shapes;
+  burst.prototype.timelineobject.prototype.timelines;
+  burst.prototype.timelineobject.prototype.frame;
+  burst.prototype.timelineobject.prototype.callbackfired;    
+  burst.prototype.timelineobject.prototype.randomCount;
+  burst.prototype.timelineobject.prototype.playMode;
+  burst.prototype.timelineobject.prototype.tracks;
+  burst.prototype.timelineobject.prototype.effects;    
+  burst.prototype.timelineobject.prototype.scl; 
+  burst.prototype.timelineobject.prototype.left;
+  burst.prototype.timelineobject.prototype.top;
+  burst.prototype.timelineobject.prototype.rot;
+  burst.prototype.timelineobject.prototype.width;
+  burst.prototype.timelineobject.prototype.height;
+  burst.prototype.timelineobject.prototype.strokeW;
+  burst.prototype.timelineobject.prototype.strokeHex;
+  burst.prototype.timelineobject.prototype.strokeRGBA;
+  burst.prototype.timelineobject.prototype.strokeR;
+  burst.prototype.timelineobject.prototype.strokeG;
+  burst.prototype.timelineobject.prototype.strokeB;
+  burst.prototype.timelineobject.prototype.strokeA;        
+  burst.prototype.timelineobject.prototype.fillHex;            
+  burst.prototype.timelineobject.prototype.fillRGBA;
+  burst.prototype.timelineobject.prototype.fillR;
+  burst.prototype.timelineobject.prototype.fillG;
+  burst.prototype.timelineobject.prototype.fillB;
+  burst.prototype.timelineobject.prototype.fillA;        
+  burst.prototype.timelineobject.prototype.opac;
+  burst.prototype.timelineobject.prototype.centerX;
+  burst.prototype.timelineobject.prototype.centerY;
+  burst.prototype.timelineobject.prototype.isParent;
+  
+  burst.prototype.timelineobject.prototype.inherit=function(tl){
     for(var i=0;i<Burst.timelines.length;i++){
       if(Burst.timelines[i].name==tl){
         this.timelines[this.timelines.length]=Burst.timelines[i];
@@ -625,29 +890,21 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
         return this; 
       }
     }
-  }       
-  
-  // Clone this timeline to..
-  timelineobject.prototype.clone=function(newName){   
-    //aClone = new timelineobject(String newName);
-    //aClone.shapes = this.shapes;
-    //timelines[timelines.length] = aClone;
-    //return aClone;
-  }
+  }  
     
   // Build &/or Return Shape
-  timelineobject.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){                
-        for(var i=0; i < this.shapes.length; i++){
-            if (this.shapes[i].name==name){ 
-              return this.shapes[i];
-            }
+  burst.prototype.timelineobject.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){             
+    for(var i=0; i < this.shapes.length; i++){
+        if (this.shapes[i].name==name){ 
+          return this.shapes[i];
         }
-        this.shapes[this.shapes.length] = new shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,this);
-        return this.shapes[this.shapes.length-1];
     }
+    this.shapes[this.shapes.length] = new burst.prototype.timelineobject.prototype.shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,this);
+    return this.shapes[this.shapes.length-1];
+  }
     
   // Pause on frame..
-  timelineobject.prototype.pause=function(onFrame){
+  burst.prototype.timelineobject.prototype.pause=function(onFrame){
     if(onFrame){
       this.frame=onFrame;
       this.paused=true;
@@ -656,8 +913,8 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
     }      
   }
     
-  // Plat child-timelines
-  timelineobject.prototype.playChildren=function(){
+  // Play child-timelines
+  burst.prototype.timelineobject.prototype.playChildren=function(){
     for(var i=0;i<this.timelines.length;i++){
       this.timelines[i].frame+=this.playSpeed;
       this.timelines[i].play();
@@ -665,27 +922,30 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
   }
     
   // Callback Exceution
-  timelineobject.prototype.callback=function(cb){
+  burst.prototype.timelineobject.prototype.callback=function(cb){
     if(cb!=undefined&&this.callbackfired==false){
       this.callbackfired=true;
       cb();
     }
   }
-
+  
   // Return Track
-  timelineobject.prototype.track=function(property){
+  burst.prototype.timelineobject.prototype.track=function(property){
     for(var i=0;i<this.tracks.length;i++){
       if(this.tracks[i].property==property){
         return this.tracks[i];
       }
     }
-    this.tracks[this.tracks.length]=new trackprop(property,this);
+    this.tracks[this.tracks.length]=new burst.prototype.trackprop(property,this);
     return this.tracks[this.tracks.length-1];
   }
 
   // Play Timeline
-  timelineobject.prototype.play=function(cb){
-    this.playSpeed<0?playMode="backward":playMode="forward";        
+  burst.prototype.timelineobject.prototype.play=function(cb){
+    var ease=burst.prototype.ease;
+    var radians=burst.prototype.radians;
+    
+    this.playSpeed<0?playMode="backward":playMode="forward";
         
     if(this.paused==false){
       switch(playMode){
@@ -704,79 +964,19 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
         break;
       }
     }
-    
-    
-                        
-    // Timeline animator                  
+
+    // Send Timeline to Burst Engine
     for(var i=0;i<this.tracks.length;i++){
-      for(var j=0;j<this.tracks[i].keys.length;j++){
-        var curTrack=this.tracks[i];
+      var curTrack=this.tracks[i];
+      for(var j=0;j<curTrack.keys.length;j++){
           var curProp=this.tracks[i].property;
           var curKey=this.tracks[i].keys[j];
           if(j<curTrack.keys.length-1){var nextKey=curTrack.keys[j+1];}else{var nextKey=curTrack.keys[j];}
-          if(this.frame>=curKey.frame&&this.frame<nextKey.frame){
-            var e=curKey.easing;
-            var x=0;
-            var t=this.frame-curKey.frame;
-            var b=curKey.value;
-            var c=nextKey.value-curKey.value;
-            var d=nextKey.frame-curKey.frame;
-            switch(curProp){
-              case "left":this.left=ease(e,x,t,b,c,d);break;
-              case "top":this.top=ease(e,x,t,b,c,d);break;
-              case "cenX":this.centerX=ease(e,x,t,b,c,d);break;
-              case "cenY":this.centerY=ease(e,x,t,b,c,d);break;
-              case "scl":this.scl=ease(e,x,t,b,c,d);break;
-              case "rot":this.rot=ease(e,x,t,b,c,d);break;
-              case "strokeWeight":this.strokeW=ease(e,x,t,b,c,d);break;
-              case "stroke":
-                var c1=hexRGBA(curKey.value);
-                var c2=hexRGBA(nextKey.value);
-                this.strokeR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
-                this.strokeG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
-                this.strokeB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
-                this.strokeA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);
-                break;
-              case "fill":
-                var c1=hexRGBA(curKey.value);
-                var c2=hexRGBA(nextKey.value);
-                this.fillR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
-                this.fillG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
-                this.fillB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
-                this.fillA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);                
-                break;
-              case "opac":this.opac=ease(e,x,t,b,c,d);break;
-            }
-        }else if(this.frame>=nextKey.frame||this.frame==0){         
-          switch(curProp){
-          case "left":this.left=curKey.value;break;
-          case "top":this.top=curKey.value;break;
-          case "cenX":this.centerX=curKey.value;break;
-          case "cenY":this.centerY=curKey.value;break;
-          case "scl":this.scl=curKey.value;break;
-          case "rot":this.rot=curKey.value;break;
-          case "strokeWeight":this.strokeW=curKey.value;break;
-          case "stroke":
-            var c=hexRGBA(curKey.value);            
-            this.strokeR=c[0];
-            this.strokeG=c[1];
-            this.strokeB=c[2];
-            this.strokeA=1/255*c[3]            
-            break;
-          case "fill":
-            var c=hexRGBA(curKey.value);
-            this.fillR=c[0];
-            this.fillG=c[1];
-            this.fillB=c[2];
-            this.fillA=1/255*c[3];
-            break;
-          case "opac":this.opac=curKey.value;break;
-          }
-        }
+          burst.prototype.engine(this,this.frame,curProp,curKey,nextKey);
       }
     }
 
-    // Timeline style & matrix        
+    // Timeline style & matrix            
     ctx.save();
     ctx.translate(this.left+this.centerX,this.top+this.centerY);
     ctx.rotate(radians(this.rot));    
@@ -787,152 +987,71 @@ function timelineobject(name,frameOffset,lastFrame,playSpeed,loop,isParent){
     ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
     ctx.lineWidth=this.strokeW;
     ctx.globalAlpha=this.opac;    
+    
     ctx.beginPath();
       ctx.moveTo(0,0);
-      ctx.lineTo(width,0);
-      ctx.lineTo(width,height);
-      ctx.lineTo(0,height);
+      ctx.lineTo(this.width,0);
+      ctx.lineTo(this.width,this.height);
+      ctx.lineTo(0,this.height);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-
-    // Shape animator
-    for(var i=0;i<this.shapes.length;i++){  
-      for(var j=0;j<this.shapes[i].tracks.length;j++){
-        for(var k=0;k<this.shapes[i].tracks[j].keys.length;k++){                
-          var curShape=this.shapes[i];
-          var curTrack=this.shapes[i].tracks[j];
+    
+    // Animate Shapes
+    for(var i=0;i<this.shapes.length;i++){
+      var curShape=this.shapes[i];
+      for(var j=0;j<curShape.tracks.length;j++){  
+        for(var k=0;k<this.shapes[i].tracks[j].keys.length;k++){                    
+          var curTrack=this.shapes[i].tracks[j];  // can make som kb savings here with all the needless "var this[]i.whatever" stuff
           var curProp=this.shapes[i].tracks[j].property;
           var curKey=this.shapes[i].tracks[j].keys[k];
-          if(k<curTrack.keys.length-1){var nextKey=curTrack.keys[k+1];}else{var nextKey=curTrack.keys[k]; }
-          if(this.frame>=curKey.frame&&this.frame<nextKey.frame){              
-              var e=curKey.easing;
-              var x=0;
-              var t=this.frame-curKey.frame;
-              var b=curKey.value;
-              var c=nextKey.value-curKey.value;
-              var d = nextKey.frame-curKey.frame;
-              switch(curProp){
-                case "left":curShape.left=ease(e,x,t,b,c,d); break;
-                case "top":curShape.top=ease(e,x,t,b,c,d);break;
-                case "scl":curShape.scl=ease(e,x,t,b,c,d);break;
-                case "cenX":curShape.centerX=ease(e,x,t,b,c,d);break;
-                case "cenY":curShape.centerY=ease(e,x,t,b,c,d);break;
-                case "rot":curShape.rot=ease(e,x,t,b,c,d);break;
-                case "strokeWidth":curShape.strokeW=ease(e,x,t,b,c,d);break;
-                case "stroke":
-                  var c1=hexRGBA(curKey.value);
-                  var c2=hexRGBA(nextKey.value);
-                  curShape.strokeR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
-                  curShape.strokeG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
-                  curShape.strokeB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
-                  curShape.strokeA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);
-                  break;
-                case "fill":
-                  var c1=hexRGBA(curKey.value);
-                  var c2=hexRGBA(nextKey.value);
-                  curShape.fillR=parseInt(ease(e,x,t,c1[0],c2[0]-c1[0],d));
-                  curShape.fillG=parseInt(ease(e,x,t,c1[1],c2[1]-c1[1],d));
-                  curShape.fillB=parseInt(ease(e,x,t,c1[2],c2[2]-c1[2],d));
-                  curShape.fillA=1/255*ease(e,x,t,c1[3],c2[3]-c1[3],d);
-                  break;
-                case "opac":curShape.opac=ease(e,x,t,b,c,d);break;
-              }
-          // Apply final keyframe values to shape when reaching last key
-          }else if (this.frame>=nextKey.frame||this.frame==0){
-              switch(curProp){
-              case "left":curShape.left=curKey.value;break;
-              case "top":curShape.top=curKey.value;break;
-              case "cenX":curShape.centerX=curKey.value;break;
-              case "cenY":curShape.centerY=curKey.value;break;
-              case "scl":curShape.scl=curKey.value;break;
-              case "rot":curShape.rot=curKey.value;break;
-              case "strokeWidth":curShape.strokeW=curKey.value;break;
-              case "stroke":
-                var c=hexRGBA(curKey.value);
-                curShape.strokeR=c[0];
-                curShape.strokeG=c[1];
-                curShape.strokeB=c[2];
-                curShape.strokeA=c[3];
-                break;
-              case "fill":
-                var c=hexRGBA(curKey.value);
-                curShape.strokeR=c[0];
-                curShape.strokeG=c[1];
-                curShape.strokeB=c[2];
-                curShape.strokeA=c[3];
-                break;
-              case "opac":curShape.opac=curKey.value;break;
-              }
+          if(k<curTrack.keys.length-1){var nextKey=curTrack.keys[k+1];}else{var nextKey=curTrack.keys[k];}          
+          burst.prototype.engine(curShape,this.frame,curProp,curKey,nextKey);
+        }
+      }
+      // Animate any SVG Groups
+      for(var l=0;l<curShape.obj.groups.length;l++){
+        var curGroup=curShape.obj.groups[l];
+        for(var m=0;m<curGroup.tracks.length;m++){
+          var curTrack=curGroup.tracks[m];
+          for(var o=0;o<curTrack.keys.length;o++){                                
+            var curProp=curTrack.property;
+            var curKey=curTrack.keys[o];
+            if(o<curTrack.keys.length-1){var nextKey=curTrack.keys[o+1];}else{var nextKey=curTrack.keys[o];}                
+            burst.prototype.engine(curGroup,this.frame,curProp,curKey,nextKey);
           }
         }
       }
-    }
-
+    }    
+                
     this.draw(this.frame);
     ctx.restore();
   }
     
-  timelineobject.prototype.draw=function(){
+  burst.prototype.timelineobject.prototype.draw=function(){
     for(var i=0;i<this.shapes.length;i++){
       this.shapes[i].draw(this.frame);
+      debug("bounds",this);
     }
-  }
-////////////////////////////////////////////////////////////////////////////////
-
-//////// S V G /////////////////////////////////////////////////////////////
-function svgobject(name,url,left,top,scl,rot,zIndex,opac,isParent){
-  this.name=name;
-  this.url=url;
-  this.obj=burst.prototype.loadSVG(url);
-  this.isParent=isParent;      
-  !left?this.left=burst.width/2:this.left=left;
-  !top?this.top=burst.height/2:this.top=top;
-  !scl?this.scl=1:this.scl=scl;
-  !rot?this.rot=0:this.rot=rot;  
-  this.opac=1.0;
-  this.zIndex=1;
-  this.centerX=0;
-  this.centerY=0;  
-  this.type="svg";
-  this.tracks=[];
-  this.effects=[];
-  }
+  }    
   
-  svgobject.prototype.name;
-  svgobject.prototype.url;
-  svgobject.prototype.obj;  
-  svgobject.prototype.mode;
-  svgobject.prototype.left;
-  svgobject.prototype.top;
-  svgobject.prototype.scl;
-  svgobject.prototype.rot;
-  svgobject.prototype.opac;
-  svgobject.prototype.zIndex;        
-  svgobject.prototype.centerX;
-  svgobject.prototype.centerY;
-  svgobject.prototype.winding;
-  svgobject.prototype.type;
-  svgobject.prototype.tracks;
-  svgobject.prototype.effects;
-  svgobject.prototype.isParent;  
+////////////////////////////////////////////////////////////////////////////////  
 
-  
-  svgobject.prototype.draw=function(){
-      this.obj.render();
-  }
 
 
 //////// S H A P E /////////////////////////////////////////////////////////////
-function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){
+burst.prototype.timelineobject.prototype.shapeobject=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){  
+  hexRGBA = burst.prototype.hexRGBA;
   this.name=name;
   this.url=url;
-  this.obj=[];
+  this.extension = url.split(/([\.][a-zA-Z0-9]+)/)[1];
+  //console.log(this.extension);
+  this.obj=[];  
   this.isParent=isParent;
   this.mode=mode;
   this.checkMemory(this.isParent);  
-  !left?this.left=burst.width/2:this.left=left;
-  !top?this.top=burst.height/2:this.top=top;
+  this.left=left;
+  this.top=top;
   !scl?this.scl=1:this.scl=scl;
   !rot?this.rot=0:this.rot=rot;
   !strokeW?this.strokeW=1:this.strokeW=strokeW;
@@ -964,41 +1083,41 @@ function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zI
   //this.fx=[][];
   }
   
-  shapeobject.prototype.name;
-  shapeobject.prototype.url;
-  shapeobject.prototype.obj;  
-  shapeobject.prototype.mode;
-  shapeobject.prototype.left;
-  shapeobject.prototype.top;
-  shapeobject.prototype.scl;
-  shapeobject.prototype.rot;
-  shapeobject.prototype.strokeW;
-  shapeobject.prototype.strokeHex;
-  shapeobject.prototype.strokeRGBA;
-  shapeobject.prototype.strokeR;
-  shapeobject.prototype.strokeG;
-  shapeobject.prototype.strokeB;
-  shapeobject.prototype.strokeA;
-  shapeobject.prototype.fillHex;                
-  shapeobject.prototype.fillRGBA;
-  shapeobject.prototype.fillR;
-  shapeobject.prototype.fillG;
-  shapeobject.prototype.fillB;
-  shapeobject.prototype.fillA;        
-  shapeobject.prototype.opac;
-  shapeobject.prototype.zIndex;        
-  shapeobject.prototype.centerX;
-  shapeobject.prototype.centerY;
-  shapeobject.prototype.winding;
-  shapeobject.prototype.type;
-  shapeobject.prototype.tracks;
-  shapeobject.prototype.effects;
-  shapeobject.prototype.shapes;
-  shapeobject.prototype.fx;  
-  shapeobject.prototype.isParent;  
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.name;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.url;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.obj;  
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.mode;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.left;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.top;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.scl;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.rot;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeW;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeHex;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeRGBA;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeR;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeG;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeB;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.strokeA;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fillHex;                
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fillRGBA;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fillR;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fillG;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fillB;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fillA;        
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.opac;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.zIndex;        
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.centerX;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.centerY;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.winding;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.type;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.tracks;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.effects;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.shapes;
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.fx;  
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.isParent;  
 
   // Inherit
-  shapeobject.prototype.inherit=function(name,url,mode,left,top,scl,rot,strokeWeight,strokeHex,fillHex,zIndex,opac){
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.inherit=function(name,url,mode,left,top,scl,rot,strokeWeight,strokeHex,fillHex,zIndex,opac){
     var isParent = this.isParent;
     for(var i=0;i<this.shapes.length;i++){
       if(this.shapes[i].name==name){return this.shapes[i];}
@@ -1009,57 +1128,66 @@ function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zI
   }
     
   // Draw Children
-  shapeobject.prototype.drawChildren=function(){
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.drawChildren=function(){
     for(var i=0;i<this.shapes.length;i++){
       this.shapes[i].draw();
     }
   }
   
+  // Clone shape To..
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.cloneTo=function(cloneName){
+    //return t
+  }
+  
   // Parent
-  shapeobject.prototype.parent=function(){
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.parent=function(){
     return this.isParent;
   }
-     
+
   // Check Memory & Load
-  shapeobject.prototype.checkMemory=function(){
-    burstInstance = this.isParent.isParent;    
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.checkMemory=function(){ // probably should re-write this as so much has changed
+    var burstInstance=this.isParent.isParent;
     if(burstInstance.urlIndex.length>0){
       urlMatch=false;
       for(var i=0;i<burstInstance.urlIndex.length;i++){
         if(burstInstance.urlIndex[i]==this.url){
-          this.obj=burstInstance.ajaxMem[i+1];
+          switch(this.extension){
+          case ".off": this.obj=burstInstance.ajaxMem[i+1]; break;
+          case ".svg": this.obj=burst.prototype.loadSVG(this.url,this.mode);break;
+          }
           urlMatch=true;
           break;
         }
       }
       if(urlMatch==false){
         burstInstance.urlIndex[burstInstance.urlIndex.length]=this.url;
-        switch(this.mode){
-        case "off":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadOFF(this.url);break;
-        case "svg":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadSVG(this.url);break;
+        switch(this.extension){
+        case ".off":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadOFF(this.url);break;
+        case ".svg":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadSVG(this.url,this.mode);break;
         }
         this.obj=burstInstance.ajaxMem[burstInstance.urlIndex.length];
       }
     }else{
       burstInstance.urlIndex[burstInstance.urlIndex.length]=this.url;
-      switch(this.mode){
-      case "off":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadOFF(this.url);break;
-      case "svg":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadSVG(this.url); break;
-      }
-      this.obj=burstInstance.ajaxMem[burstInstance.urlIndex.length];
+      switch(this.extension){
+      case ".off":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadOFF(this.url);break;
+      case ".svg":burstInstance.ajaxMem[burstInstance.urlIndex.length]=burst.prototype.loadSVG(this.url,this.mode); break;
+      }      
+      this.obj = burstInstance.ajaxMem[burstInstance.urlIndex.length];
     }
-    
   }
  
   // [Draw Shape]
-  shapeobject.prototype.draw=function(frame){    
-
-    switch(this.mode){
-    case "off":
-        ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";             
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.draw=function(frame){    
+    var ease=burst.prototype.ease;
+    var radians=burst.prototype.radians;
+  
+    switch(this.extension){
+    case ".off":
+        ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";   
         ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
-        ctx.lineWidth = this.strokeW;      
-        ctx.translate(-this.centerX,-this.centerY);        
+        ctx.lineWidth = this.strokeW;
+        ctx.translate(-this.centerX,-this.centerY);
         if(this.type=="shape"){
           ctx.save();
           ctx.translate(this.left+this.centerX,this.top+this.centerY); 
@@ -1075,73 +1203,97 @@ function shapeobject(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zI
           ctx.lineTo(-(this.obj[0][1]*this.scl),this.obj[0][0]*this.scl);        
           ctx.closePath();
           ctx.doFill=true;
-          ctx.restore();
           ctx.stroke();
           ctx.fill();
+                    
         }
         break;
-    case "svg":
-        ctx.save();        
+    case ".svg":
+        //console.log(this.obj);
+        ctx.save();
         ctx.translate(this.left+this.centerX,this.top+this.centerY);
         ctx.rotate(radians(this.rot));
-        ctx.scale(this.scl,this.scl);        
+        ctx.scale(this.scl,this.scl);
         ctx.translate(this.left-this.centerX,this.top-this.centerY);
-        this.obj.render();        
-        ctx.restore();
-        break;
-    }
-    
-    
-    
-    
+        this.obj.render();
+        break;        
+    }                
+  
+    ctx.restore();
   } // end of [Draw Shape]
 
   // Return Track
-  shapeobject.prototype.track=function(property){
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.track=function(property){
     for(var i=0;i<this.tracks.length;i++){
       if(this.tracks[i].property==property){
         return this.tracks[i];
       }
     }
-    this.tracks[this.tracks.length]=new trackprop(property,this);
+    this.tracks[this.tracks.length]=new burst.prototype.trackprop(property,this);
     return this.tracks[this.tracks.length-1];
   }
  
+  //Return Group (SVG groups)
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.group=function(groupID){
+    for(var i=0;i< this.obj.groups.length; i++){
+      if(this.obj.groups[i].id==groupID){return this.obj.groups[i];}
+    }
+  }
+  
   //Return Shape
-  shapeobject.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeWeight,strokeHex,fillHex,zIndex,opac,isParent){
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeWeight,strokeHex,fillHex,zIndex,opac,isParent){
     return this.isParent.shape(name,url,mode,left,top,scl,rot,strokeWeight,strokeHex,fillHex,zIndex,opac,isParent);
   }
+  
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.cut=function(groupIDs){
+    this.obj.cut(groupIDs);
+    return this;
+  }  
 ////////////////////////////////////////////////////////////////////////////////
 
 //////// T R A C K /////////////////////////////////////////////////////////////
-function trackprop(property,isParent){
+burst.prototype.trackprop=function(property,isParent){
   this.property=property;
   this.keys=[];
   this.isParent=isParent;
+      
+      // KEYS - start //////////////////////////////////////////////////////////
+      this.constructor.prototype.keyframe=function(frame,value,easing){
+        this.frame=frame;
+        this.value=value;
+        this.easing=easing;
+        this.constructor.prototype.val=function(v){    
+          if(v){this.value=v;}else{return this.value;}        
+        }
+        this.constructor.prototype.ease=function(e){    
+          if(e){this.easing=e;}else{return this.easing;}
+        }
+      }                          
+      // KEYS - end ////////////////////////////////////////////////////////////
   }
-  
-  trackprop.prototype.property;
-  trackprop.prototype.keys;
-  trackprop.prototype.isParent;
+  burst.prototype.trackprop.prototype.property;
+  burst.prototype.trackprop.prototype.keys;
+  burst.prototype.trackprop.prototype.isParent;
   
   // Sort Number
-  trackprop.prototype.sortNumber=function(a,b){
-    return a-b;
-  }
+  burst.prototype.trackprop.prototype.sortNumber=function(a,b){return a-b;}
     
   // Return Track
-  trackprop.prototype.track=function(aTrack){
-    return this.isParent.track(aTrack);
-  }
+  burst.prototype.trackprop.prototype.track=function(aTrack){return this.isParent.track(aTrack);}
     
-  trackprop.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){
+  // Return shape object
+  burst.prototype.trackprop.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){
     return this.isParent.shape(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent);
-  }    
+  }
+  // Return SVG Group object
+  burst.prototype.trackprop.prototype.group=function(groupID){return this.isParent.group(groupID);}
+  
+  burst.prototype.trackprop.prototype.cut=function(groups){this.isParent.isParent.cut(groups);}
 
   // Add key
-  trackprop.prototype.key=function(frame,value,easing){    
-    !easing?easing="easeOutQuad":0;
-    this.keys[this.keys.length]=new keyframe(frame,value,easing);
+  burst.prototype.trackprop.prototype.key=function(frame,value,easing){    
+    !easing?easing=burst.prototype.defaults.ease:0;
+    this.keys[this.keys.length]=new burst.prototype.trackprop.prototype.keyframe(frame,value,easing);
     var keyIndex=[];
     for(var i=0;i<this.keys.length;i++){
       keyIndex[i]=this.keys[i].frame;
@@ -1160,7 +1312,7 @@ function trackprop(property,isParent){
   }
   
   // Return keyframe
-  trackprop.prototype.frame=function(frame){
+  burst.prototype.trackprop.prototype.frame=function(frame){
     for(var i=0;i<keys.length;i++){             
       if(keys[i].frame==frame){
           return keys[i];               
@@ -1169,85 +1321,8 @@ function trackprop(property,isParent){
   }
 ////////////////////////////////////////////////////////////////////////////////
 
-//////// K E Y F R A M E ///////////////////////////////////////////////////////
-function keyframe(frame,value,easing){
-  this.frame=frame;
-  this.value=value;
-  this.easing=easing;
-  }
-  
-  trackprop.prototype.frame;
-  trackprop.prototype.value;
-  trackprop.prototype.easing;
-
-  keyframe.prototype.val=function(v){
-    if(v){this.value=v;}else{return this.value;}        
-  }
-    
-  keyframe.prototype.ease=function(e){
-    if(e){this.easing=e;}else{return this.easing;}        
-  }
-////////////////////////////////////////////////////////////////////////////////
-
-//////// E A S I N G ///////////////////////////////////////////////////////////
-function ease(e,x,t,b,c,d){
-  switch(e){
-    case "linear": return c*t/d + b; break;
-    case "easeInQuad": return c*(t/=d)*t + b; break;
-    case "easeOutQuad": return -c *(t/=d)*(t-2) + b; break;
-    case "easeInOutQuad": if ((t/=d/2) < 1) return c/2*t*t + b; return -c/2 * ((--t)*(t-2) - 1) + b; break;
-    case "easeInCubic": return c*(t/=d)*t*t + b; break;
-    case "easeOutCubic": return c*((t=t/d-1)*t*t + 1) + b; break;
-    case "easeInOutCubic": if ((t/=d/2) < 1) return c/2*t*t*t + b; return c/2*((t-=2)*t*t + 2) + b; break;
-    case "easeInQuart": return c*(t/=d)*t*t*t + b; break;
-    case "easeOutQuart": return -c * ((t=t/d-1)*t*t*t - 1) + b; break;
-    case "easeInOutQuart": if ((t/=d/2) < 1) return c/2*t*t*t*t + b; return -c/2 * ((t-=2)*t*t*t - 2) + b; break;
-    case "easeInQuint": return c*(t/=d)*t*t*t*t + b; break;
-    case "easeOutQuint": return c*((t=t/d-1)*t*t*t*t + 1) + b; break;
-    case "easeInOutQuint": if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b; return c/2*((t-=2)*t*t*t*t + 2) + b; break;
-    case "easeInSine": return -c * Math.cos(t/d * (Math.PI/2)) + c + b; break;
-    case "easeOutSine": return c * Math.sin(t/d * (Math.PI/2)) + b; break;
-    case "easeInOutSine":  return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b; break;
-    case "easeInExpo": return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b; break;
-    case "easeOutExpo": return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b; break;
-    case "easeInOutExpo": if (t==0) return b; if (t==d) return b+c; if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b; return c/2 * (-Math.pow(2, -10 * --t) + 2) + b; break;
-    case "easeInCirc": return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b; break;
-    case "easeOutCirc": return c * Math.sqrt(1 - (t=t/d-1)*t) + b; break;
-    case "easeInOutCirc": if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b; return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b; break;
-    case "easeInElastic": var s=1.70158;var p=0;var a=c; if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3; if (a < Math.abs(c)) { a=c; var s=p/4; } else var s = p/(2*Math.PI) * Math.asin (c/a); return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b; break;
-    case "easeOutElastic": var s=1.70158;var p=0;var a=c; if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3; if (a < Math.abs(c)) { a=c; var s=p/4; } else var s = p/(2*Math.PI) * Math.asin (c/a); return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b; break;
-    case "easeInOutElastic": var s=1.70158;var p=0;var a=c; if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5); if (a < Math.abs(c)) { a=c; var s=p/4; } else var s = p/(2*Math.PI) * Math.asin (c/a); if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b; return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b; break;
-    case "easeInBack": if (s == undefined) s = 1.70158; return c*(t/=d)*t*((s+1)*t - s) + b; break;
-    case "easeOutBack": if (s == undefined) s = 1.70158; return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b; break;
-    case "easeInOutBack": if (s == undefined) s = 1.70158;  if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b; return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b; break;
-    case "easeInBounce": return c - ease("easeOutBounce", x, d-t, 0, c, d) + b; break;
-    case "easeOutBounce": if ((t/=d) < (1/2.75)) { return c*(7.5625*t*t) + b; } else if (t < (2/2.75)) { return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b; } else if (t < (2.5/2.75)) { return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b; } else { return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b; } break;
-    case "easeInOutBounce": if (t < d/2) return ease("easeInBounce",x, t*2, 0, c, d) * .5 + b; return ease("easeOutBounce",x, t*2-d, 0, c, d) * .5 + c*.5 + b; break;
-  }
-}
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-//////// E N V  - V A R S //////////////////////////////////////////////////////
-width = 640;
-height = 480;
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 //////// I N I T - M A S T E R /////////////////////////////////////////////////
-//var Burst = new Burst("name",640,480);
-
-function newBurst(canvasId,BurstScript){
+function newBurst(canvasId,BurstScript){  
   if(window.addEventListener){
     window.addEventListener("load",function(){
       var canvas=document.getElementById(canvasId);
@@ -1257,28 +1332,17 @@ function newBurst(canvasId,BurstScript){
         //console.log("This browser does not support the Canvas object.");
       }else{
         ctx=canvas.getContext('2d');
-        var Burst=new burst("be",cWidth,cHeight);
-        BurstScript(Burst);
+        var BurstController=new burst("be",cWidth,cHeight);
+        BurstScript(BurstController);
       }
     },false);
   }
-} 
-
-/*
-if(window.addEventListener){
-  window.addEventListener("load",function(){
-  var canvas = document.getElementById('burstCanvas');
-    if (!canvas.getContext){
-      console.log('This browser does not support the Canvas object.');
-    }else{
-      ctx = canvas.getContext('2d');
-      var Burst=new burst("test");      
-    }
-  },false);
 }
-*/
-//window.HBurst = Burst;
-//window.HBurst = Burst;
-
 ////////////////////////////////////////////////////////////////////////////////
 
+// http://eJohn.org
+  Array.prototype.remove = function(from, to) {
+    var rest = this.slice((to || from) + 1 || this.length);
+    this.length = from < 0 ? this.length + from : from;
+    return this.push.apply(this, rest);
+};
