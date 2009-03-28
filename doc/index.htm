@@ -6,7 +6,7 @@
   <meta name="generator" content="F1LT3R at Hyper-Metrix.com">
   <meta name="description" content="Burst Engine Demo">
   <meta name="keywords" content="Burst animation engine JavaScript Canvas">
-  <title>Burst Engine</title>
+  <title>Burst Engine Documentation</title>
   <link rel="stylesheet" media="screen" type ="text/css" href="css/screen.css" />  
 </head>
 <body>
@@ -27,16 +27,29 @@
     <li><a href="#links">Useful Links</a></li>        
   </ol>
   
-  <h2>Burst.pjs Demonstrations</h2>
+  
+  <h2>Burst JS Demonstrations</h2>
+  <ol>
+    <li><a href="demos/js/fontsAreCool.htm">Exporting fonts as SVGs</a></li>
+    <li><a href="demos/js/GitHub's-Octocat.htm">Flash-Like Octocat Animation</a></li>
+    <li><a href="demos/js/Octocat-iPhone/Octocat-iPhone.htm">Octocat for iPhone</a></li>
+    <li><a href="http://www.hyper-metrix.com/burst/development/doc/demos/js/Burst%20Engine%20-%20Tutorial%202%20-%20SVG%20Groups/">Tutorial 2 - Animating an SVG Car</a></li>
+  </ol>
+  
+  <h2>Burst PJS Demonstrations</h2>
   <ol>
     <li><a href="demos/pjs/introduction.htm">Introduction</a></li>
     <li><a href="demos/pjs/commandchaining.htm">Command Chaining</a></li>    
-  </ol>
+  </ol>    
+
+
 
   <h2>Burst Video Tutorials</h2>
   <ol>
     <li><a href="tut/Burst0.3.30Demo/">Animating SVGs on the Canvas</a></li>
+    <li><a href="http://www.hyper-metrix.com/burst/development/doc/tut/SVGGroups/">SVG Groups and Timeline Inheritance</a></li> 
   </ol>
+    
   
   <h2>Reference</h2>      
   <h4>Commands</h4>
@@ -54,10 +67,11 @@
     <li><a href="#ref-commandchaining">Command Chaning</a></li>
   </ol>
   <h4>Technical</h4>
-  <ol>
-    <li><a href="#ref-xmlchromesafari">Parsing XML in Chrome &amp; Safari with Javascript</a></li>
+  <ol>    
     <li><a href="#ref-firefoxglobalalpha">Firefox's globalAlpha Bug</a></li>
-    <li><a href="#ref-safarigradientstroke">Safari's Gradient-Stroke Bug</a></li>        
+    <li><a href="#ref-firefoxarcto">FireFox's ArcTo Bug</a></li>
+    <li><a href="#ref-xmlchromesafari">Parsing XML in Chrome &amp; Safari with Javascript</a></li>
+    <li><a href="#ref-safarigradientstroke">Safari's Gradient-Stroke Bug</a></li>                
   </ol>  
 </div><div class="pageend"></div>    
   
@@ -430,12 +444,18 @@ Burst.timeline("party", 0, 25, .5, false)
 
 <div class="subject">
 <h3><a name="ref-firefoxglobalalpha">FireFox's Global Alpha Bug</a></h3>
-<p>At the time of writing this <i>(2009 March 11th)</i>, FireFox contains a bug re: the Canvas' globalAlpha method. In FireFox, global alpha gets ignored when rendering gradients. GlobalAlpha works correctly in Safari, Chrome and Opera. <a href="tests/globalAlphaGradient/globalAlphaGradient.htm">( Global Alpha Gradient Testcase )</a> I filed this bug with Mozilla: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=482751">Bug 482751</a>. To which I am told that it is fixed in the latest nightly, which I downloaded and apparently that's not true, at least in the WIN32 version.</p>
+<p>At the time of writing this <i>(2009 March 11th)</i>, FireFox contains a bug re: the Canvas' globalAlpha method. In FireFox, global alpha gets ignored when rendering gradients. GlobalAlpha works correctly in Safari, Chrome and Opera. <a href="tests/globalAlphaGradient/globalAlphaGradient.htm">( Global Alpha Gradient Testcase )</a> I filed this bug with Mozilla: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=482751">Bug 482751</a>. <s>To which I am told that it is fixed in the latest nightly, which I downloaded and apparently that's not true, at least in the WIN32 version.</s></p>
+<p>2009 March 27 - The Global Alpha is fixed in the latest nightly.</p>
 </div>
 
 <div class="subject">
 <h3><a name="ref-safarigradientstroke">Safari's Gradient-Stroke Bug</a></h3>
 <p>Unfortunately Safari seems incapable of applying a gradient to a strokeStyle <i>(2009 March 11th)</i>. FireFox, Chome and Opera can do this just fine. <a href="tests/gradientStroke/gradientStroke.htm">Gradient-Stroke Test Case</a>. Bug filled with Apple Developer Connection (Follow-Up: 69318849).</p>
+</div>
+
+<div class="subject">
+<h3><a name="ref-firefoxarcto">FireFox's ArcTo Bug</a></h3>
+<p>I have been tracking FireFox's Canvas arcTo bug (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=471281">BUG: 471281</a>) for a few weeks now. It looks like it is getting fixed, but it's still not working in the nightly builds (as of 2009.Mar.27). This is a super-annoying bug as it means you can draw circles in Inkscape and export them to Burst. There are some arcTo() tests here: <a href="http://philip.html5.org/tests/canvas/suite/tests/index.2d.path.arcTo.html">Philip's HTML5 ArcTo Test</a>, <a href="http://hixie.ch/tests/adhoc/html/canvas/006.html">Hixie's context Arc Test</a> &amp; <a href="http://canvex.lazyilluminati.com/misc/arcto.html">Lazy Illuminati's ArcTo Test</a>. It's worth running these in different browsers to see just how much the ArcTo command fails.</p>
 </div>
 
 
