@@ -31,6 +31,11 @@ VIDEO TUTORIALS
 1) Importing and animation SVGs from Inkscape: http://hyper-metrix.com/burst/development/doc/tut/Burst0.3.30Demo/
 2) SVG Groups, Timeline Inheritance and Callbacks: http://www.hyper-metrix.com/burst/development/doc/tut/SVGGroups/
 
+QUICK DEMOS
+-------------------------------------------------------------------------------
+1) Animating SVG Characters - GitHub's Octocat: http://localhost/burst/doc/demos/js/Octocat-iPhone/Octocat-iPhone.htm
+2) Animatnig an SVG Car - Callbacks & inheritance: http://www.hyper-metrix.com/burst/development/doc/demos/js/Burst%20Engine%20-%20Tutorial%202%20-%20SVG%20Groups/
+3) Mouse Tricks - .mouseX/Y, angleTo() & .always(): http://www.hyper-metrix.com/burst/development/doc/demos/js/Mouse%20Tricks/
 
 USEFUL LINKS
 -------------------------------------------------------------------------------
