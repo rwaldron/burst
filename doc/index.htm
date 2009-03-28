@@ -27,13 +27,13 @@
     <li><a href="#links">Useful Links</a></li>        
   </ol>
   
-  
   <h2>Burst JS Demonstrations</h2>
   <ol>
     <li><a href="demos/js/fontsAreCool.htm">Exporting fonts as SVGs</a></li>
     <li><a href="demos/js/GitHub's-Octocat.htm">Flash-Like Octocat Animation</a></li>
     <li><a href="demos/js/Octocat-iPhone/Octocat-iPhone.htm">Octocat for iPhone</a></li>
     <li><a href="http://www.hyper-metrix.com/burst/development/doc/demos/js/Burst%20Engine%20-%20Tutorial%202%20-%20SVG%20Groups/">Tutorial 2 - Animating an SVG Car</a></li>
+    <li><a href="http://www.hyper-metrix.com/burst/development/doc/demos/js/Mouse%20Tricks/">Mouse Tricks</a></li>
   </ol>
   
   <h2>Burst PJS Demonstrations</h2>
@@ -41,8 +41,6 @@
     <li><a href="demos/pjs/introduction.htm">Introduction</a></li>
     <li><a href="demos/pjs/commandchaining.htm">Command Chaining</a></li>    
   </ol>    
-
-
 
   <h2>Burst Video Tutorials</h2>
   <ol>
@@ -61,6 +59,7 @@
     <li><a href="#ref-chain">chain()</a></li>
     <li><a href="#ref-play">play()</a></li>
     <li><a href="#ref-pause">pause()</a></li>
+    <li><a href="#ref-angleTo">angleTo()</a></li>
   </ol>        
   <h4>Usage</h4>
   <ol>
@@ -383,6 +382,37 @@ init.</td><tr>
 <pre>Burst.pause();</pre>
 </div>
 
+<div class="subject">
+<h3><a name="ref-angleTo">.angleTo()</a></h3>
+<p>The .angleTo() command returns the angle from the current object to the object passed. The angle is returned in degrees, 0 always being North. Remember to take layer rotations into account when building complex scenes.</p>
+<pre>
+var cursor  = Burst.timeline("myTimeline").object("customCursor");
+var compass = Burst.timeline("myTimeline").object("compassArrow");
+
+// Point the compass at the cursor...
+compass.rot = compass.angleTo(cursor);
+</pre>
+<p>Example: <a href="http://www.hyper-metrix.com/burst/development/doc/demos/js/Mouse%20Tricks/">Mouse Tricks</a></p>
+</div>
+
+
+<div class="subject">
+<h3><a name="ref-always">.always()</a></h3>
+<p>The <b>.always()</b> command is a callback function that runs at the beggining of every frame before things are drawn to the canvas.</p>
+<pre>
+annoy=function(){
+  alert("Wow these alerts are really annoying!");
+}
+Burst.always(annoy); 
+</pre>
+<p>The <b>.always()</b> function can be applied to single timelines also:</p>
+<pre>
+annoy=function(){
+  alert("Wow these alerts are really annoying!");
+}
+Burst.timeline("alertsSuck").always(annoy);
+</pre>
+</div>
 
 
 

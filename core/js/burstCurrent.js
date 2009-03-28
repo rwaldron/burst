@@ -1,5 +1,5 @@
 /*
-    Burst Engine 0.3.30 - http://hyper-metrix.com/#burst        
+    Burst Engine 0.3.52 - http://hyper-metrix.com/#burst        
     Copyright (c) 2009 Alistair MacDonald        
     
     MIT License
@@ -26,62 +26,90 @@
     OTHER DEALINGS IN THE SOFTWARE.
 */
 
-var burstDebug=false;
-function debug(){if(burstDebug==true){
-  switch(arguments[0]){
-  case "bounds":
-    var t=arguments[1];
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.lineWidth=2;
-    ctx.beginPath();
-      ctx.moveTo(t.centerX-30,t.centerY-30);
-      ctx.lineTo(t.centerX+30,t.centerY+30);
-      ctx.moveTo(t.centerX+30,t.centerY-30);
-      ctx.lineTo(t.centerX-30,t.centerY+30);
-      ctx.strokeStyle="rgba(255,0,255,255)";
-    ctx.closePath();
-    ctx.stroke();
-    ctx.globalCompositeOperation = "source-over";
-    break;
-  default:
-    console.log(arguments);    
-  }
-}}
+burst.prototype.defaults={
+   // Default easing method
+   ease:"easeInOutQuad",
+   // Milliseconds per frame | 20mspf equates to approx. 60fps
+   mspf:20,
+   // Set Debug Mode on/off
+   debug:false
+}  
 
 //////// M A S T E R - C O N T R O L E R ///////////////////////////////////////
-function burst(name,width,height){    
-  this.version = "Burst.js.0.3.30"
-  //burstDebug=true;
+function burst(name,width,height,canvas){    
+  this.version = "Burst.js.0.3.30"  
   this.name=name;
   this.urlIndex=[];
   this.ajaxMem=[];
   this.timelines=[];
+  this.clickIndex=[];
   this.buffer=[];
-  this.tl="";
-  this.mspf = 20; // 60fps approx.
+  //this.tl=""; // is this used anymore???
+  this.mspf = this.defaults.mspf;
   this.frame = 0;
   this.width=width;
   this.height=height;
-  this.paused=false;  
-}
-  
-  burst.prototype.defaults={
-    ease:"easeInOutQuad",
-    debug:true       
-  }
-  
+  this.paused=false;
+  this.canvas=canvas;
+  this.alwaysFunction=function(){};
+  this.mouseX=0;
+  this.mouseY=0;
+  this.bind(this.canvas,this);     
+  }  
+        
   burst.prototype.name;
   burst.prototype.version;
   burst.prototype.urlIndex;
   burst.prototype.ajaxMem;
   burst.prototype.timelines;
   burst.prototype.buffer;
-  burst.prototype.debug;
   burst.prototype.tl;
   burst.prototype.mspf;
   burst.prototype.frame;
   burst.prototype.width;
-  burst.prototype.height;    
+  burst.prototype.height;
+  burst.prototype.mouseX;
+  burst.prototype.mouseY;
+  burst.prototype.alwaysFunction; 
+ 
+  burst.prototype.debug=function(){if(burst.prototype.defaults.debug==true){  
+    switch(arguments[0]){
+    case "bounds":            
+      var t=arguments[1];
+      ctx.lineWidth=2;
+      ctx.strokeStyle="#ff00ff";
+      ctx.beginPath();
+        ctx.moveTo(t.centerX-30+t.left,t.centerY-30+t.top);
+        ctx.lineTo(t.centerX+30+t.left,t.centerY+30+t.top);
+        ctx.moveTo(t.centerX+30+t.left,t.centerY-30+t.top);
+        ctx.lineTo(t.centerX-30+t.left,t.centerY+30+t.top);
+      ctx.closePath();
+      ctx.stroke();
+      break;
+    default:
+      console.log(arguments);    
+    }
+  }}
+
+  // Sets new always-function
+  burst.prototype.always=function(aFunc){
+    this.alwaysFunction=aFunc;
+  }
+  
+  burst.prototype.bind=function(curElement,inst){// Adapted from Processing.js by John Resig | http://ejohn.org
+    function attach(elem,type,fn){
+      if(elem.addEventListener)
+        elem.addEventListener(type,fn,false);
+      else
+        elem.attachEvent("on"+type,fn);
+    }
+    attach(curElement,"mousemove",function(e){
+      var scrollX=window.scrollX!=null?window.scrollX:window.pageXOffset;
+      var scrollY=window.scrollY!=null?window.scrollY:window.pageYOffset;
+      inst.mouseX=(e.clientX-curElement.offsetLeft+scrollX);
+      inst.mouseY=(e.clientY-curElement.offsetTop+scrollY);
+    });
+  }
  
   burst.prototype.has = function(needle,hay){
     if(hay.indexOf(needle,0)>-1){
@@ -89,7 +117,7 @@ function burst(name,width,height){
     } else {
       return false;
     };
-  };  
+  };
   
   burst.prototype.hexRGBA = function(hex){  
     var RGBA = toNumbers(hex);
@@ -115,16 +143,20 @@ function burst(name,width,height){
     return hexTable.charAt(c1)+hexTable.charAt(c2);
   }
     
-  burst.prototype.radians = function(aAngle){
+  burst.prototype.radians=function(aAngle){
     return (aAngle/180)*Math.PI;
   };
   
-  burst.prototype.debug = function(what){
-    //console.log( typeof what );    
-  }  
+  burst.prototype.degrees=function(aAngle){
+    aAngle=(aAngle*180)/Math.PI;  
+    if(aAngle<0){aAngle=360+aAngle}
+    return aAngle;
+  };
     
   burst.prototype.ease = function(e,x,t,b,c,d){
+    //debug(arguments);
     switch(e){
+      case "step":if(t==d){return d;}else{return 1;};break;
       case "linear": return c*t/d + b; break;
       case "easeInQuad": return c*(t/=d)*t + b; break;
       case "easeOutQuad": return -c *(t/=d)*(t-2) + b; break;
@@ -240,7 +272,7 @@ function burst(name,width,height){
   }
   
   burst.prototype.start=function(tls,cb){
-    this.buffer=[];
+    //this.buffer=[];
     var tl=tls.split(";");
     for(var j=0;j<this.timelines.length;j++){
       for(var i=0;i<tl.length;i++){
@@ -250,7 +282,25 @@ function burst(name,width,height){
         }
       }
     }
-    this.play();        
+    this.play();
+  }
+  
+  burst.prototype.clear=function(){
+    this.buffer=[];
+  }
+  
+  burst.prototype.stop=function(tls){    
+    // To stop a child timeline you will have to stop the parent too.
+    // ..thinking of making a recursive search to find and stop children.
+    var tl=tls.split(";");
+    for(var j=0;j<this.timelines.length;j++){
+      for(var i=0;i<tl.length;i++){
+        if(this.timelines[j].name==tl[i]){
+          this.buffer.remove(j,j);
+          break;
+        }
+      }
+    }
   }
   
   burst.prototype.chain=function(tlchain,cb){
@@ -307,7 +357,7 @@ function burst(name,width,height){
     
   burst.prototype.load=function(tl,cb){
     tl.playSpeed>=0?tl.frame=0:tl.frame=tl.lastFrame;
-    tl.callbackfired=false;              
+    tl.callbackfired=false;
     this.buffer[this.buffer.length]=[tl,cb];                              
   }
 
@@ -630,7 +680,6 @@ function burst(name,width,height){
       for(var i=0;i<node.childNodes.length;i++){
         curNode = node.childNodes[i];
         curTagName = node.childNodes[i].tagName;
-        //debug(node.tagName);                
         if(node.tagName=="svg"){g=curNode.id;}
         switch(curTagName){
           case "defs"          :parseSVG(curNode);break;
@@ -649,13 +698,12 @@ function burst(name,width,height){
           case "rect"          :
               O.add([],function(){ctx.save();},g);
               rect(curNode);
-              //O.add([],function(){debug("bounds")},g);
               O.add([],function(){ctx.restore();},g);
               break;
         }
       }
     }
-          
+    
     loadXML();
     //O.render();
     //O.breakflow();
@@ -663,6 +711,10 @@ function burst(name,width,height){
   }
   
   burst.prototype.drawNextFrame=function(){
+    //Always runs this function before drawing a frame
+    this.alwaysFunction();
+    
+    // Play the frame if not paused
     if(!this.paused){
       ctx.clearRect(0,0,this.width,this.height);
       this.frame++;
@@ -689,6 +741,8 @@ function burst(name,width,height){
   burst.prototype.SVG.prototype.groups;
   
   burst.prototype.SVG.prototype.groupobject=function(groupID,isParent){
+  this.centerX=0;
+  this.centerY=0;
   this.tracks=[];
   this.id=groupID;
   this.left=0;
@@ -697,8 +751,6 @@ function burst(name,width,height){
   this.rot=0;  
   this.opac=1;
   this.transform=[1,0,0,1,0,0];
-  this.centerX=0;
-  this.centerY=0;
   this.f=[]; // functions
   this.a=[]; // arguments
   this.c=0;  // func/args count
@@ -716,24 +768,23 @@ function burst(name,width,height){
   burst.prototype.SVG.prototype.groupobject.prototype.centerX;
   burst.prototype.SVG.prototype.groupobject.prototype.centerY;
   
+  burst.prototype.SVG.prototype.groupobject.prototype.debug=function(groupID){
+    debug("bounds", this);
+  }
+  
   //Return Group (SVG groups)
   burst.prototype.SVG.prototype.groupobject.prototype.group=function(groupID){
     for(var i=0;i< this.isParent.groups.length; i++){
       if(this.isParent.groups[i].id==groupID){return this.isParent.groups[i];}
     }
-  }
-  
-  //burst.prototype.SVG.prototype.groupobject.prototype.group.prototype.  
-  //this.obj.cut(groupIDs);
-    //return this;
-  
+  }      
   
   burst.prototype.SVG.prototype.groupobject.prototype.add=function(newArgs,newFunc){  
     this.a[this.c]=newArgs;
     this.f[this.c]=newFunc;
     this.c++;
-    //debug(newArgs, newFunc);
-    //debug(this.f[this.c], this.a[this.c],this.id);    
+    burst.prototype.debug(newArgs, newFunc);
+    burst.prototype.debug(this.f[this.c], this.a[this.c],this.id);    
   }
   
   burst.prototype.SVG.prototype.groupobject.prototype.render=function(){    
@@ -741,15 +792,15 @@ function burst(name,width,height){
     ctx.translate(this.left+this.centerX,this.top+this.centerY);
     ctx.scale(this.scl,this.scl);
     ctx.rotate(burst.prototype.radians(this.rot));
-    ctx.translate(-this.centerX,-this.centerY);     
-    ctx.globalAlpha=this.opac;
+    ctx.translate(-this.centerX,-this.centerY);
+    
     t=this.transform;ctx.transform(t[0],t[1],t[2],t[3],t[4],t[5]);    
-    for(var i=0;i<this.f.length;i++){
+    for(var i=0;i<this.f.length;i++){      
       this.f[i](this.a[i]);
     }
     ctx.globalAlpha=1;
     ctx.restore();
-  }    
+  }
   
   burst.prototype.SVG.prototype.groupobject.prototype.track=function(property){
     for(var i=0;i<this.tracks.length;i++){
@@ -776,10 +827,13 @@ function burst(name,width,height){
     }
   }
       
-  burst.prototype.SVG.prototype.render=function(){
-    for(var i=0;i<this.groups.length;i++){      
+  burst.prototype.SVG.prototype.render=function(){    
+    for(var i=0;i<this.groups.length;i++){
       if(this.groups[i].cut==false){
-        this.groups[i].render();
+        this.groups[i].render();        
+        if(burst.prototype.defaults.debug==true){
+          burst.prototype.debug("bounds",this.groups[i]);
+        }
       }
     }
   }  
@@ -796,7 +850,6 @@ function burst(name,width,height){
   }
   
 ////////////////////////////////////////////////////////////////////////////////
-
 
 //////// T I M E L I N E ///////////////////////////////////////////////////////
 burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loop,isParent){  
@@ -835,12 +888,13 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
   this.fillR=this.fillRGBA[0];
   this.fillG=this.fillRGBA[1];
   this.fillB=this.fillRGBA[2];
-  this.fillA=this.fillRGBA[3];        
+  this.fillA=this.fillRGBA[3];    
   this.opac=1.0;
-  this.centerX=this.width/2;
-  this.centerY=this.height/2;
+  this.centerX=0//this.width/2;
+  this.centerY=0//this.height/2;
   this.isParent = isParent;
   this.cuts=[];
+  this.alwaysFunction=function(){};
   }
     
   burst.prototype.timelineobject.prototype.name;  
@@ -881,17 +935,12 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
   burst.prototype.timelineobject.prototype.centerX;
   burst.prototype.timelineobject.prototype.centerY;
   burst.prototype.timelineobject.prototype.isParent;
+  burst.prototype.timelineobject.prototype.alwaysFunciton;      
   
-  burst.prototype.timelineobject.prototype.inherit=function(tl){
-    for(var i=0;i<Burst.timelines.length;i++){
-      if(Burst.timelines[i].name==tl){
-        this.timelines[this.timelines.length]=Burst.timelines[i];
-          //return Burst.timelines[i];
-        return this; 
-      }
-    }
-  }  
-    
+  burst.prototype.timelineobject.prototype.always=function(aFunc){
+    this.alwaysFunction=aFunc;
+  }    
+  
   // Build &/or Return Shape
   burst.prototype.timelineobject.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){             
     for(var i=0; i < this.shapes.length; i++){
@@ -913,11 +962,24 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
     }      
   }
     
+  // Inherit timelines as children
+  burst.prototype.timelineobject.prototype.inherit=function(tl){
+    var inst=this.isParent;
+    for(var i=0;i<inst.timelines.length;i++){
+      if(inst.timelines[i].name==tl){
+        this.timelines[this.timelines.length]=inst.timelines[i];
+        return this; //inst.timelines[i];
+      }
+    }
+  }
+  
   // Play child-timelines
   burst.prototype.timelineobject.prototype.playChildren=function(){
     for(var i=0;i<this.timelines.length;i++){
-      this.timelines[i].frame+=this.playSpeed;
-      this.timelines[i].play();
+      if(this.timelines[i].paused==false){
+        this.timelines[i].frame+=this.timelines[i].playSpeed+(this.timelines[i].playSpeed/this.playSpeed)
+      }
+      this.timelines[i].play();      
     }
   }
     
@@ -942,25 +1004,22 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
 
   // Play Timeline
   burst.prototype.timelineobject.prototype.play=function(cb){
-    var ease=burst.prototype.ease;
+    this.alwaysFunction();
+        
     var radians=burst.prototype.radians;
     
     this.playSpeed<0?playMode="backward":playMode="forward";
-        
     if(this.paused==false){
       switch(playMode){
       case "forward":
-        this.frame<this.lastFrame?this.frame=this.frame+this.playSpeed:this.loop==true?this.frame=0:(cb)?this.callback(cb):0;
-        this.playChildren();
+        this.frame<this.lastFrame?this.frame=this.frame+this.playSpeed:this.loop==true?this.frame=0:(cb)?this.callback(cb):0;        
         break;
       case "backward":
-        this.frame>=1-this.playSpeed?this.frame=this.frame+this.playSpeed:this.loop==true?this.frame=this.lastFrame:(cb)?this.callback(cb):0;                        
-        this.playChildren();
+        this.frame>=1-this.playSpeed?this.frame=this.frame+this.playSpeed:this.loop==true?this.frame=this.lastFrame:(cb)?this.callback(cb):0;        
         break;
       case "random":
         this.frame=random(this.lastFrame);
         if(randomCount<this.lastFrame){randomCount++;}else{if(loop){(cb)?this.callback(cb):0;}}
-        this.playChildren();
         break;
       }
     }
@@ -982,7 +1041,7 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
     ctx.rotate(radians(this.rot));    
     this.sclX!=this.sclY?ctx.scale(this.sclX, this.sclY):ctx.scale(this.scl,this.scl);
     ctx.translate(-this.centerX,-this.centerY);
-    ctx.doFill=true;
+    ctx.doFill=true;    
     ctx.fillStyle="rgba("+this.fillR+","+this.fillG+","+this.fillB+","+this.fillA+")";  
     ctx.strokeStyle="rgba("+this.strokeR+","+this.strokeG+","+this.strokeB+","+this.strokeA+")";
     ctx.lineWidth=this.strokeW;
@@ -1002,7 +1061,7 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
       var curShape=this.shapes[i];
       for(var j=0;j<curShape.tracks.length;j++){  
         for(var k=0;k<this.shapes[i].tracks[j].keys.length;k++){                    
-          var curTrack=this.shapes[i].tracks[j];  // can make som kb savings here with all the needless "var this[]i.whatever" stuff
+          var curTrack=this.shapes[i].tracks[j];  // can make some kb savings here with all the needless "var this[]i.whatever" stuff
           var curProp=this.shapes[i].tracks[j].property;
           var curKey=this.shapes[i].tracks[j].keys[k];
           if(k<curTrack.keys.length-1){var nextKey=curTrack.keys[k+1];}else{var nextKey=curTrack.keys[k];}          
@@ -1025,13 +1084,14 @@ burst.prototype.timelineobject=function(name,frameOffset,lastFrame,playSpeed,loo
     }    
                 
     this.draw(this.frame);
+    this.playChildren();
     ctx.restore();
   }
     
   burst.prototype.timelineobject.prototype.draw=function(){
     for(var i=0;i<this.shapes.length;i++){
       this.shapes[i].draw(this.frame);
-      debug("bounds",this);
+      this.isParent.debug("bounds",this);
     }
   }    
   
@@ -1071,10 +1131,6 @@ burst.prototype.timelineobject.prototype.shapeobject=function(name,url,mode,left
   this.zIndex=1;
   this.centerX=0;
   this.centerY=0;
-  if(mode=="svg"){
-    this.centerX=this.obj.width/2;
-    this.centerY=this.obj.height/2;
-  }
   this.winding=1;
   this.type="shape";
   this.tracks=[];
@@ -1116,6 +1172,10 @@ burst.prototype.timelineobject.prototype.shapeobject=function(name,url,mode,left
   burst.prototype.timelineobject.prototype.shapeobject.prototype.fx;  
   burst.prototype.timelineobject.prototype.shapeobject.prototype.isParent;  
 
+  burst.prototype.timelineobject.prototype.shapeobject.prototype.angleTo=function(object){
+    return burst.prototype.degrees(-Math.atan2(this.left+this.centerX - object.left+object.centerX, this.top+this.centerY - object.top+object.centerY) + (Math.PI/2))-90
+  }
+  
   // Inherit
   burst.prototype.timelineobject.prototype.shapeobject.prototype.inherit=function(name,url,mode,left,top,scl,rot,strokeWeight,strokeHex,fillHex,zIndex,opac){
     var isParent = this.isParent;
@@ -1190,7 +1250,7 @@ burst.prototype.timelineobject.prototype.shapeobject=function(name,url,mode,left
         ctx.translate(-this.centerX,-this.centerY);
         if(this.type=="shape"){
           ctx.save();
-          ctx.translate(this.left+this.centerX,this.top+this.centerY); 
+          ctx.translate(this.left+this.centerX,this.top+this.centerY);           
           ctx.rotate(radians(this.rot+90));
           ctx.beginPath();
         }else{ ctx.moveTo(-(this.obj[0][1]*this.scl), this.obj[0][0]*this.scl); }
@@ -1205,21 +1265,20 @@ burst.prototype.timelineobject.prototype.shapeobject=function(name,url,mode,left
           ctx.doFill=true;
           ctx.stroke();
           ctx.fill();
-                    
+          ctx.restore();                    
         }
         break;
     case ".svg":
-        //console.log(this.obj);
         ctx.save();
-        ctx.translate(this.left+this.centerX,this.top+this.centerY);
-        ctx.rotate(radians(this.rot));
-        ctx.scale(this.scl,this.scl);
-        ctx.translate(this.left-this.centerX,this.top-this.centerY);
-        this.obj.render();
+          ctx.translate(this.left,this.top);
+          ctx.translate(-this.centerX,-this.centerY);          
+            ctx.rotate(radians(this.rot));
+          ctx.translate(this.centerX,this.centerY);
+          ctx.scale(this.scl,this.scl);
+          this.obj.render();
+        ctx.restore();
         break;        
-    }                
-  
-    ctx.restore();
+    }      
   } // end of [Draw Shape]
 
   // Return Track
@@ -1268,7 +1327,7 @@ burst.prototype.trackprop=function(property,isParent){
         this.constructor.prototype.ease=function(e){    
           if(e){this.easing=e;}else{return this.easing;}
         }
-      }                          
+      }
       // KEYS - end ////////////////////////////////////////////////////////////
   }
   burst.prototype.trackprop.prototype.property;
@@ -1280,6 +1339,18 @@ burst.prototype.trackprop=function(property,isParent){
     
   // Return Track
   burst.prototype.trackprop.prototype.track=function(aTrack){return this.isParent.track(aTrack);}
+  
+  burst.prototype.trackprop.prototype.inherit=function(aTrack){    
+    console.log(
+       
+    );
+    this.isParent.inherit(aTrack)
+    return this;
+    
+    //return this.isParent.track.inherit(aTrack);
+    //return this.isParent.track(aTrack);    
+  }
+  
     
   // Return shape object
   burst.prototype.trackprop.prototype.shape=function(name,url,mode,left,top,scl,rot,strokeW,strokeHex,fillHex,zIndex,opac,isParent){
@@ -1291,7 +1362,7 @@ burst.prototype.trackprop=function(property,isParent){
   burst.prototype.trackprop.prototype.cut=function(groups){this.isParent.isParent.cut(groups);}
 
   // Add key
-  burst.prototype.trackprop.prototype.key=function(frame,value,easing){    
+  burst.prototype.trackprop.prototype.key=function(frame,value,easing){        
     !easing?easing=burst.prototype.defaults.ease:0;
     this.keys[this.keys.length]=new burst.prototype.trackprop.prototype.keyframe(frame,value,easing);
     var keyIndex=[];
@@ -1313,7 +1384,7 @@ burst.prototype.trackprop=function(property,isParent){
   
   // Return keyframe
   burst.prototype.trackprop.prototype.frame=function(frame){
-    for(var i=0;i<keys.length;i++){             
+    for(var i=0;i<keys.length;i++){
       if(keys[i].frame==frame){
           return keys[i];               
       }
@@ -1332,7 +1403,7 @@ function newBurst(canvasId,BurstScript){
         //console.log("This browser does not support the Canvas object.");
       }else{
         ctx=canvas.getContext('2d');
-        var BurstController=new burst("be",cWidth,cHeight);
+        var BurstController=new burst("BurstEngine",cWidth,cHeight,canvas);
         BurstScript(BurstController);
       }
     },false);
