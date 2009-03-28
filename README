@@ -1,20 +1,44 @@
-########  ##     ## ########   ######  ######## 
-##     ## ##     ## ##     ## ##    ##    ##    
-##     ## ##     ## ##     ## ##          ##    
-########  ##     ## ########   ######     ##    
-##     ## ##     ## ##   ##         ##    ##    
-##     ## ##     ## ##    ##  ##    ##    ##    
-########   #######  ##     ##  ######     ##    
+                          <=====+'                                                                             
+                        .hNNNNNNNN~                         
+                        'DNNNNNNNN(                         
+              +NNNh' '<hBNNNNNNNNNB=-   =NNNz.              
+            <NNNNNNNNNNNNNNNNNNNNNNNNNBNNNNNNNz.            
+           hNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN~           
+           ~BNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN=            
+             sNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN=              
+            =NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNND'             
+         . <NNNNNNNNNNNNNNNNDhhNNNNNNNNNNNNNNNz. .          
+      <DNNNNNNNNNNNNNNNNNB-     .zNNNNNNNNNNNNNNNNNN=       
+      sNNNNNNNNNNNNNNNNND'        sNNNNNNNNNNNNNNNNND       
+      sNNNNNNNNNNNNNNNNND.        =NNNNNNNNNNNNNNNNND       
+      sNNNNNNNNNNNNNNNNNNz       <NNNNNNNNNNNNNNNNNNh       
+       .<++hNNNNNNNNNNNNNNND+~(sNNNNNNNNNNNNNNB=+++-        
+           'BNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN+             
+            -BNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN=              
+            =NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNh'            
+           DNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN~           
+           -DNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN<                       
+             -DNNNNs=NNNNNNNNNNNNNNNNh((BNNNN+              
+               '<~     .<BNNNNNNNN+      '<~                
+                        'DNNNNNNNN(                         
+                         'sDhhhDh~
+                                               
+              T H E - B U R S T - E N G I N E
+              
 
-BURST ENGINE VIDEO TUTORIAL
+VIDEO TUTORIALS
 -------------------------------------------------------------------------------
-Want to see how to build quick SVG animations on the Canvas?
+1) Importing and animation SVGs from Inkscape
 http://hyper-metrix.com/burst/development/doc/tut/Burst0.3.30Demo/
+2) SVG Groups, Timeline Inheritance and Callbacks
+http://www.hyper-metrix.com/burst/development/doc/tut/SVGGroups/
 
-BURST IRC CHANNEL
+
+USEFUL LINKS
 -------------------------------------------------------------------------------
-need quick answers to good questions?
-irc://irc.freenode.net/Burst 
+1) Burst Engine Documentation http://hyper-metrix.com/burst/development/doc/
+2) Burst Engine IRC Channel: irc://irc.freenode.net/Burst 
+
 
 ABOUT BURST ENGINE
 -------------------------------------------------------------------------------
